@@ -1,0 +1,17 @@
+[tasks.ui]
+command = "elm"
+args = ["make", "src-ui/Main.elm", "--output", "static/elm.js"]
+
+[tasks.watch-ui]
+command = "elm"
+args = ["make", "src-ui/Main.elm", "--output", "static/elm.js"]
+watch = { watch = ["./src-ui/"], ignore_pattern = "src/" }
+
+[tasks.run]
+command = "cargo"
+args = ["run"]
+
+[tasks.watch-run]
+command = "cargo"
+args = ["run"]
+watch = { watch = ["./src/", "Cargo.toml", "config.conf"], ignore_pattern = "src-ui/" }
