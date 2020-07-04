@@ -35,7 +35,7 @@ init _ url key =
         (Theater (Model.Filter "" Nothing) SortByTitle)
         Nothing
         (urlToView url)
-        (Hospital False [] False [] True [] True [] True False Nothing Nothing)
+        (Hospital False [] True [] True [] True [] True False Nothing Nothing)
         Nothing
         (Model.Config [ Model.defaultKodi ] 0)
     , MainApi.getInit
