@@ -235,7 +235,7 @@ viewSickMovie : Model.Movie -> Model.Kodi -> Html Msg
 viewSickMovie movie kodi =
     tr
         []
-        [ ViewCommon.viewMoviePoster movie.id movie.poster "1rem" kodi.url
+        [ ViewCommon.viewMoviePoster movie.id movie.poster "1.6rem" kodi.url
         , td []
             [ a
                 [ href (kodi.url ++ "#movie/" ++ String.fromInt movie.id)
@@ -247,5 +247,12 @@ viewSickMovie movie kodi =
         , td [] [ text movie.path ]
         , td [] [ ViewCommon.viewDuration movie.runtime ]
         , td [] [ text (ViewCommon.resolutionToQuality movie.resolution) ]
-        , td [] [ div [ onClick (HospitalMsg (RefreshMovies [ movie.id ])) ] [ text "👀" ] ]
+        , td []
+            [ button
+                [ type_ "button"
+                , class "btn btn-info btn-sm"
+                , onClick (HospitalMsg (RefreshMovies [ movie.id ]))
+                ]
+                [ text "👀" ]
+            ]
         ]
