@@ -1,7 +1,7 @@
 module ViewTheater exposing (viewMovies)
 
 import Browser exposing (UrlRequest(..))
-import Html exposing (Html, a, button, div, em, h6, input, span, text)
+import Html exposing (Html, a, button, div, em, h4, h6, input, span, text)
 import Html.Attributes exposing (attribute, class, href, id, style, target, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Model exposing (CurrentView(..), Msg(..), SortBy(..), Theater, TheaterMsgs(..))
@@ -66,19 +66,58 @@ viewMovies theater movie_list kodi =
                 )
                 movie_list
 
-        filtered_filtered_list =
+        list_for_set =
             case theater.sortBy of
                 SortBySet ->
-                    List.filter (\movie -> not (maybeIsNothing movie.set)) filtered_list
+                    Tuple.second
+                        (List.foldl
+                            (\movie acc ->
+                                let
+                                    current_set =
+                                        Tuple.first acc
+
+                                    movies =
+                                        Tuple.second acc
+                                in
+                                if current_set == movie.set then
+                                    ( movie.set, movies ++ [ movie ] )
+
+                                else
+                                    ( movie.set
+                                    , movies
+                                        ++ [ Model.Movie
+                                                -1
+                                                (Maybe.withDefault "" movie.set)
+                                                -1
+                                                ""
+                                                ""
+                                                Nothing
+                                                Nothing
+                                                ""
+                                                0
+                                                0
+                                                movie.set
+                                           , movie
+                                           ]
+                                    )
+                            )
+                            ( Nothing, [] )
+                            (sortMovies theater.sortBy (List.filter (\movie -> not (maybeIsNothing movie.set)) filtered_list))
+                        )
 
                 _ ->
-                    filtered_list
+                    []
     in
     viewMovieList
         theater
-        (sortMovies
-            theater.sortBy
-            filtered_filtered_list
+        (case theater.sortBy of
+            SortBySet ->
+                list_for_set
+
+            _ ->
+                sortMovies
+                    theater.sortBy
+                    filtered_list
         )
         kodi
 
@@ -145,42 +184,58 @@ viewMovie : Model.Movie -> Model.Kodi -> Html Msg
 viewMovie movie kodi =
     div [ class "card", style "width" "10rem", style "min-width" "10rem", style "max-width" "10rem", style "margin" "0.5rem" ]
         [ ViewCommon.viewMoviePoster movie.id movie.poster "10rem" kodi.url
-        , div [ class "card-body", style "padding" "0.7rem" ]
-            [ h6 [ class "card-title" ]
-                [ a
-                    [ href (kodi.url ++ "#movie/" ++ String.fromInt movie.id)
-                    , target "_blank"
-                    ]
+        , if movie.id == -1 then
+            div [ class "card-body", style "padding" "0.7rem", style "display" "flex", style "align-items" "center" ]
+                [ h4 [ class "card-title", style "text-align" "center" ]
                     [ text movie.title ]
                 ]
-            , div [] [ em [ class "text-muted small" ] [ text movie.premiered ] ]
-            , ViewCommon.viewDuration movie.runtime
-            , viewResolution movie.resolution
-            , viewRating movie.rating
-            , viewPlaycount movie.playcount
-            ]
+
+          else
+            div [ class "card-body", style "padding" "0.7rem" ]
+                [ h6
+                    [ class "card-title" ]
+                    [ a
+                        [ href (kodi.url ++ "#movie/" ++ String.fromInt movie.id)
+                        , target "_blank"
+                        ]
+                        [ text movie.title ]
+                    ]
+                , div [] [ em [ class "text-muted small" ] [ text movie.premiered ] ]
+                , ViewCommon.viewDuration movie.runtime
+                , viewResolution movie.resolution
+                , viewRating movie.rating
+                , viewPlaycount movie.playcount
+                ]
         ]
 
 
 viewResolution : Maybe Model.Resolution -> Html Msg
 viewResolution resolution =
-    span [ class (String.concat [ "badge ", ViewCommon.resolutionToColor resolution ]), style "position" "absolute", style "top" "0", style "right" "-0.15em" ]
-        [ text
-            (ViewCommon.resolutionToQuality resolution)
-        ]
+    if not (maybeIsNothing resolution) then
+        span [ class (String.concat [ "badge ", ViewCommon.resolutionToColor resolution ]), style "position" "absolute", style "top" "0", style "right" "-0.15em" ]
+            [ text
+                (ViewCommon.resolutionToQuality resolution)
+            ]
+
+    else
+        div [] []
 
 
 viewRating : Float -> Html Msg
 viewRating rating =
-    span [ class "badge badge-light", style "position" "absolute", style "bottom" "0", style "right" "-0.1em" ]
-        [ text
-            (String.concat
-                [ String.fromFloat
-                    rating
-                , "⭐️"
-                ]
-            )
-        ]
+    if rating > 0 then
+        span [ class "badge badge-light", style "position" "absolute", style "bottom" "0", style "right" "-0.1em" ]
+            [ text
+                (String.concat
+                    [ String.fromFloat
+                        rating
+                    , "⭐️"
+                    ]
+                )
+            ]
+
+    else
+        div [] []
 
 
 viewPlaycount : Int -> Html Msg
