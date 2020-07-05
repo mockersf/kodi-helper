@@ -89,21 +89,6 @@ viewSickMovies hospital mtime movie_list kodi =
                     , class
                         (String.concat
                             [ "btn btn"
-                            , if hospital.showSD then
-                                "-primary"
-
-                              else
-                                "-secondary"
-                            ]
-                        )
-                    , onClick (HospitalMsg (ToggleHospitalShow Model.SickTypeSD))
-                    ]
-                    [ text "SD" ]
-                , button
-                    [ type_ "button"
-                    , class
-                        (String.concat
-                            [ "btn btn"
                             , if hospital.showResolutionMissing then
                                 "-primary"
 
@@ -114,6 +99,21 @@ viewSickMovies hospital mtime movie_list kodi =
                     , onClick (HospitalMsg (ToggleHospitalShow Model.SickTypeResolutionMissing))
                     ]
                     [ text "Resolution Missing" ]
+                , button
+                    [ type_ "button"
+                    , class
+                        (String.concat
+                            [ "btn btn"
+                            , if hospital.showSD then
+                                "-primary"
+
+                              else
+                                "-secondary"
+                            ]
+                        )
+                    , onClick (HospitalMsg (ToggleHospitalShow Model.SickTypeSD))
+                    ]
+                    [ text "SD" ]
                 ]
             , div [ class "float-right", style "display" "flex" ]
                 [ div [ style "margin-top" "0.5rem" ]
