@@ -248,9 +248,9 @@ pub async fn clean_and_scan_kodi_library(
 ) -> HttpResponse {
     event!(Level::INFO, "starting");
     let kodi_rpc = kodi_rpc::KodiRPC::new(&CONFIG.kodis[0].url);
-    if let Err(_) = kodi_rpc.clean_library().await {
+    if let Err(_) = kodi_rpc.clean_video_library().await {
         HttpResponse::InternalServerError().json("err")
-    } else if let Err(_) = kodi_rpc.scan_library().await {
+    } else if let Err(_) = kodi_rpc.scan_video_library_and_wait_for_done().await {
         HttpResponse::InternalServerError().json("err")
     } else {
         update_movie_list(movie_list).await
