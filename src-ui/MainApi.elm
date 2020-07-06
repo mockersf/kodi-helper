@@ -17,14 +17,14 @@ refreshMovies movie_ids =
                 (\id ->
                     Http.get
                         { url = "/api/refresh_movie/" ++ String.fromInt id
-                        , expect = Http.expectJson (\json -> ApiMsg (DataReceived json)) Model.movieListDecoder
+                        , expect = Http.expectString (\msg -> ApiMsg (DataStringReceived msg))
                         }
                 )
                 movie_ids
             ++ [ Task.attempt
                     (\json ->
                         ApiMsg
-                            (DataReceived json)
+                            (DataMovieListReceived json)
                     )
                     (Process.sleep (toFloat (max 5 (List.length movie_ids * 4) * 1000))
                         |> Task.andThen (\_ -> updateMovies)
@@ -51,7 +51,7 @@ cleanAndScan =
         [ Task.perform (\t -> HospitalMsg (SetStartLoadingTime t)) Time.now
         , Http.get
             { url = "/api/clean_and_scan"
-            , expect = Http.expectJson (\json -> ApiMsg (DataReceived json)) Model.movieListDecoder
+            , expect = Http.expectJson (\json -> ApiMsg (DataMovieListReceived json)) Model.movieListDecoder
             }
         ]
 
@@ -60,7 +60,7 @@ getMovies : Cmd Msg
 getMovies =
     Http.get
         { url = "/api/movie_list"
-        , expect = Http.expectJson (\json -> ApiMsg (DataReceived json)) Model.movieListDecoder
+        , expect = Http.expectJson (\json -> ApiMsg (DataMovieListReceived json)) Model.movieListDecoder
         }
 
 
@@ -129,14 +129,30 @@ update msg model =
             , Cmd.none
             )
 
-        DataReceived (Ok movies) ->
+        DataMovieListReceived (Ok movies) ->
             ( { model
                 | movieList = movies
               }
             , getAllErrors
             )
 
-        DataReceived (Err httpError) ->
+        DataMovieListReceived (Err httpError) ->
+            ( { model
+                | errorMessage =
+                    case model.errorMessage of
+                        Just previousError ->
+                            Just (String.concat [ previousError, Model.buildErrorMessage httpError ])
+
+                        Nothing ->
+                            Just (Model.buildErrorMessage httpError)
+              }
+            , Cmd.none
+            )
+
+        DataStringReceived (Ok _) ->
+            ( model, getAllErrors )
+
+        DataStringReceived (Err httpError) ->
             ( { model
                 | errorMessage =
                     case model.errorMessage of
