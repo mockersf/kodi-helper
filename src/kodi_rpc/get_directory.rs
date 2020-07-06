@@ -24,7 +24,7 @@ struct DirectoryResponse {
 
 impl KodiRPC {
     #[instrument(err, level = "info")]
-    pub async fn get_all_files(
+    pub async fn get_directory(
         &self,
         path: &str,
     ) -> Result<Vec<crate::File>, Box<dyn std::error::Error>> {

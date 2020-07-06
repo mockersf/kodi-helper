@@ -123,7 +123,7 @@ pub async fn get_unrecognized_movies(
         .map(|pattern| regex::Regex::new(pattern).unwrap())
         .collect::<Vec<_>>();
     if let Ok(files) = kodi_rpc::KodiRPC::new(&CONFIG.kodis[0].url)
-        .get_all_files(&CONFIG.movies_directory)
+        .get_directory(&CONFIG.movies_directory)
         .await
     {
         let known_files: Vec<_> = movie_list
