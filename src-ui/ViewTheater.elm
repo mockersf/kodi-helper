@@ -125,12 +125,18 @@ viewMovies theater movie_list kodi =
 viewMovieList : Theater -> Model.MovieList -> Model.Kodi -> Html Msg
 viewMovieList theater movie_list kodi =
     div []
-        [ div [ class "input-group mb-3 sticky-top", style "margin-top" "1rem" ]
+        [ div [ class "input-group mb-3 sticky-top", style "margin-top" "0.5rem", style "padding-top" "0.5rem" ]
             [ div [ class "input-group-prepend" ] [ span [ class "input-group-text" ] [ text "Title" ] ]
             , input [ type_ "text", class "form-control", onInput (\i -> TheaterMsg (TitleFilter i)), value theater.filter.title ] []
             , div [ class "input-group-append" ]
                 [ button
-                    [ class "btn btn-outline-secondary", attribute "disabled" "true", style "border-right" "0px", style "opacity" "100" ]
+                    [ class "btn btn-outline-secondary"
+                    , attribute "disabled" "true"
+                    , style "border-right" "0px"
+                    , style "opacity" "100"
+                    , style "background-color" "rgb(233, 236, 239)"
+                    , style "border-color" "rgb(206, 212, 218)"
+                    ]
                     [ text "Sort By:" ]
                 , button
                     [ class "btn btn-outline-secondary dropdown-toggle"
@@ -142,6 +148,8 @@ viewMovieList theater movie_list kodi =
                     , style "width" "8em"
                     , style "text-align" "right"
                     , style "border-left" "0px"
+                    , style "background-color" "rgb(233, 236, 239)"
+                    , style "border-color" "rgb(206, 212, 218)"
                     ]
                     [ text (viewSortBy theater.sortBy) ]
                 , div [ class "dropdown-menu", attribute "aria-labelledby" "dropdownMenuLink" ]
