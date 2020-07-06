@@ -245,14 +245,24 @@ viewSickMovie movie kodi =
             , em [ class "text-muted small" ] [ text (" - " ++ movie.premiered) ]
             ]
         , td [] [ text movie.path ]
-        , td [] [ ViewCommon.viewDuration movie.runtime ]
+        , td []
+            [ if movie.runtime > 0 then
+                ViewCommon.viewDuration movie.runtime
+
+              else
+                div [] []
+            ]
         , td [] [ text (ViewCommon.resolutionToQuality movie.resolution) ]
         , td []
-            [ button
-                [ type_ "button"
-                , class "btn btn-info btn-sm"
-                , onClick (HospitalMsg (RefreshMovies [ movie.id ]))
-                ]
-                [ text "👀" ]
+            [ if movie.id > 0 then
+                button
+                    [ type_ "button"
+                    , class "btn btn-info btn-sm"
+                    , onClick (HospitalMsg (RefreshMovies [ movie.id ]))
+                    ]
+                    [ text "👀" ]
+
+              else
+                div [] []
             ]
         ]
