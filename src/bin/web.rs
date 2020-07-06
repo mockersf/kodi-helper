@@ -18,29 +18,33 @@ async fn main() -> std::io::Result<()> {
 
     let server = HttpServer::new(move || {
         App::new()
-            .app_data(movie_list.clone()) // add shared state
+            .app_data(movie_list.clone())
             .wrap(middleware::Logger::default())
-            .service(web::resource("/api/movie_list").to(kodi_helper::get_movie_list))
+            // API
             .service(web::resource("/api/config").to(kodi_helper::get_config))
             .service(
-                web::resource("/api/duplicates_list").to(kodi_helper::get_duplicate_movies_list),
+                web::resource("/api/movie_list")
+                    .route(web::get().to(kodi_helper::get_movie_list))
+                    .route(web::delete().to(kodi_helper::clean_and_scan_kodi_library))
+                    .route(web::put().to(kodi_helper::update_movie_list)),
             )
             .service(
-                web::resource("/api/recognition_errors_list")
+                web::resource("/api/movie/{movie_id}")
+                    .route(web::delete().to(kodi_helper::refresh_movie)),
+            )
+            .service(
+                web::resource("/api/errors/duplicates").to(kodi_helper::get_duplicate_movies_list),
+            )
+            .service(
+                web::resource("/api/errors/recognition")
                     .to(kodi_helper::get_recognition_errors_list),
             )
-            .service(
-                web::resource("/api/missing_movies_list").to(kodi_helper::get_unrecognized_movies),
-            )
-            .service(
-                web::resource("/api/clean_and_scan").to(kodi_helper::clean_and_scan_kodi_library),
-            )
-            .service(web::resource("/api/refresh_movie/{movie_id}").to(kodi_helper::refresh_movie))
-            .service(web::resource("/api/update_movie_list").to(kodi_helper::update_movie_list))
+            .service(web::resource("/api/errors/missing").to(kodi_helper::get_unrecognized_movies))
+            // UI
             .service(Files::new("/ui/{tail:.*}", "./static/").index_file("index.html"))
             .service(Files::new("/static", "./static/").index_file("index.html"))
     })
-    .bind("127.0.0.1:8080")?
+    .bind("0.0.0.0:8080")?
     .run();
     futures::future::join(server, init).await.0
 }

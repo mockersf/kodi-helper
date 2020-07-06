@@ -15,9 +15,14 @@ refreshMovies movie_ids =
         (Task.perform (\t -> HospitalMsg (SetStartRefreshingTime t)) Time.now
             :: List.map
                 (\id ->
-                    Http.get
-                        { url = "/api/refresh_movie/" ++ String.fromInt id
+                    Http.request
+                        { method = "DELETE"
+                        , headers = []
+                        , url = "/api/movie/" ++ String.fromInt id
+                        , body = Http.emptyBody
                         , expect = Http.expectString (\msg -> ApiMsg (DataStringReceived msg))
+                        , timeout = Nothing
+                        , tracker = Nothing
                         }
                 )
                 movie_ids
@@ -36,7 +41,7 @@ refreshMovies movie_ids =
 updateMovies : Task.Task Http.Error (List Model.Movie)
 updateMovies =
     Http.task
-        { method = "GET"
+        { method = "PUT"
         , headers = []
         , url = "/api/update_movie_list"
         , body = Http.emptyBody
@@ -49,9 +54,14 @@ cleanAndScan : Cmd Msg
 cleanAndScan =
     Cmd.batch
         [ Task.perform (\t -> HospitalMsg (SetStartLoadingTime t)) Time.now
-        , Http.get
-            { url = "/api/clean_and_scan"
+        , Http.request
+            { method = "DELETE"
+            , headers = []
+            , url = "/api/movie_list"
+            , body = Http.emptyBody
             , expect = Http.expectJson (\json -> ApiMsg (DataMovieListReceived json)) Model.movieListDecoder
+            , timeout = Nothing
+            , tracker = Nothing
             }
         ]
 
@@ -75,7 +85,7 @@ getConfig =
 getDuplicates : Cmd Msg
 getDuplicates =
     Http.get
-        { url = "/api/duplicates_list"
+        { url = "/api/errors/duplicates"
         , expect = Http.expectJson (\json -> ApiMsg (DataDuplicatesReceived json)) Model.movieListDecoder
         }
 
@@ -83,7 +93,7 @@ getDuplicates =
 getRecognitionErrors : Cmd Msg
 getRecognitionErrors =
     Http.get
-        { url = "/api/recognition_errors_list"
+        { url = "/api/errors/recognition"
         , expect = Http.expectJson (\json -> ApiMsg (DataRecognitionErrorsReceived json)) Model.movieListDecoder
         }
 
@@ -91,7 +101,7 @@ getRecognitionErrors =
 getMissingMovies : Cmd Msg
 getMissingMovies =
     Http.get
-        { url = "/api/missing_movies_list"
+        { url = "/api/errors/missing"
         , expect = Http.expectJson (\json -> ApiMsg (DataMissingMoviesReceived json)) Model.pathListDecoder
         }
 
