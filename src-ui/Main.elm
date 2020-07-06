@@ -32,7 +32,7 @@ init _ url key =
     ( Model
         key
         []
-        (Theater (Model.Filter "" Nothing) SortByTitle)
+        (Theater (Model.Filter "" Nothing) SortByTitle Nothing)
         Nothing
         (urlToView url)
         (Hospital False [] True [] True [] True [] True True Nothing Nothing)

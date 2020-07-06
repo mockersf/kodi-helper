@@ -1,9 +1,10 @@
 module ViewTheater exposing (viewMovies)
 
 import Browser exposing (UrlRequest(..))
-import Html exposing (Html, a, button, div, em, h4, h6, input, span, text)
-import Html.Attributes exposing (attribute, class, href, id, style, target, type_, value)
-import Html.Events exposing (onClick, onInput)
+import Html exposing (Html, a, button, div, em, h4, h5, h6, input, span, table, tbody, td, text, tr)
+import Html.Attributes exposing (attribute, class, colspan, href, id, style, target, type_, value)
+import Html.Events exposing (keyCode, on, onClick, onInput, targetValue)
+import Json.Decode as JD
 import Model exposing (CurrentView(..), Msg(..), SortBy(..), Theater, TheaterMsgs(..))
 import ViewCommon
 
@@ -63,6 +64,7 @@ viewMovies theater movie_list kodi =
                 (\movie ->
                     String.contains theater.filter.title (String.toLower movie.title)
                         || String.contains theater.filter.title (String.toLower (Maybe.withDefault "" movie.set))
+                        || not (List.isEmpty (List.filter (\tag -> String.contains theater.filter.title (String.toLower tag)) movie.tags))
                 )
                 movie_list
 
@@ -96,19 +98,95 @@ viewMovies theater movie_list kodi =
 
                 _ ->
                     []
-    in
-    viewMovieList
-        theater
-        (case theater.sortBy of
-            SortBySet ->
-                list_for_set
 
-            _ ->
-                sortMovies
-                    theater.sortBy
-                    filtered_list
-        )
-        kodi
+        movie_details =
+            Maybe.andThen List.head (Maybe.map (\id -> List.filter (\movie -> movie.id == id) movie_list) theater.displayTagForMovie)
+    in
+    div []
+        [ viewMovieDetails movie_details
+        , viewMovieList
+            theater
+            (case theater.sortBy of
+                SortBySet ->
+                    list_for_set
+
+                _ ->
+                    sortMovies
+                        theater.sortBy
+                        filtered_list
+            )
+            kodi
+        ]
+
+
+whenEnterPressed_ReceiveInputValue : (String -> msg) -> Html.Attribute msg
+whenEnterPressed_ReceiveInputValue tagger =
+    let
+        isEnter code =
+            if code == 13 then
+                JD.succeed "Enter pressed"
+
+            else
+                JD.fail "is not enter - is this error shown anywhere?!"
+
+        decode_Enter =
+            JD.andThen isEnter keyCode
+    in
+    on "keydown" (JD.map2 (\_ value -> tagger value) decode_Enter targetValue)
+
+
+viewMovieDetails : Maybe Model.Movie -> Html Msg
+viewMovieDetails movie_details =
+    case movie_details of
+        Just movie ->
+            div [ class "modal", style "display" "block", onClick (TheaterMsg StopDisplayTags) ]
+                [ div [ class "modal-dialog" ]
+                    [ div [ class "modal-content" ]
+                        [ div [ class "modal-header" ]
+                            [ h5 [ class "modal-title" ] [ text movie.title ]
+                            , button
+                                [ type_ "button"
+                                , class "close"
+                                , onClick (TheaterMsg StopDisplayTags)
+                                ]
+                                [ span [] [ text "×" ] ]
+                            ]
+                        , div
+                            [ class "modal-body" ]
+                            [ table [ class "table table-sm" ]
+                                [ tbody []
+                                    (List.map
+                                        (\tag ->
+                                            tr []
+                                                [ td [] [ text tag ]
+                                                , td [ style "text-align" "right" ]
+                                                    [ button
+                                                        [ type_ "button"
+                                                        , class "btn btn-warning btn-sm"
+                                                        , onClick (TheaterMsg (RemoveTag movie.id tag))
+                                                        ]
+                                                        [ text "🗑" ]
+                                                    ]
+                                                ]
+                                        )
+                                        movie.tags
+                                        ++ [ tr []
+                                                [ td
+                                                    [ colspan 2
+                                                    , whenEnterPressed_ReceiveInputValue (\value -> TheaterMsg (AddTag movie.id value))
+                                                    ]
+                                                    [ input [ type_ "text", class "form-control" ] [] ]
+                                                ]
+                                           ]
+                                    )
+                                ]
+                            ]
+                        ]
+                    ]
+                ]
+
+        _ ->
+            div [] []
 
 
 viewMovieList : Theater -> List Model.Movie -> Model.Kodi -> Html Msg
@@ -189,7 +267,7 @@ viewMovie movie kodi =
 
           else
             div [ class "card-body", style "padding" "0.7rem" ]
-                [ h6
+                (h6
                     [ class "card-title" ]
                     [ a
                         [ href (kodi.url ++ "#movie/" ++ String.fromInt movie.id)
@@ -197,12 +275,10 @@ viewMovie movie kodi =
                         ]
                         [ text movie.title ]
                     ]
-                , div [] [ em [ class "text-muted small" ] [ text movie.premiered ] ]
-                , ViewCommon.viewDuration movie.runtime
-                , viewResolution movie.resolution
-                , viewMovieMeta movie.rating movie.tags
-                , viewPlaycount movie.playcount
-                ]
+                    :: div [] [ em [ class "text-muted small" ] [ text movie.premiered ] ]
+                    :: ViewCommon.viewDuration movie.runtime
+                    :: viewMovieMeta movie
+                )
         ]
 
 
@@ -218,30 +294,30 @@ viewResolution resolution =
         div [] []
 
 
-viewMovieMeta : Float -> List String -> Html Msg
-viewMovieMeta rating tags =
-    div
+viewMovieMeta : Model.Movie -> List (Html Msg)
+viewMovieMeta movie =
+    [ div
         [ style "position" "absolute"
         , style "bottom" "0"
         , style "right" "-0.1em"
         , style "display" "flex"
         , style "flex-direction" "column"
         ]
-        [ span [ class "badge badge-info" ]
+        [ span [ class "badge badge-info", onClick (Model.TheaterMsg (Model.DisplayTagsFor movie.id)) ]
             [ text
                 (String.concat
                     [ String.fromInt
-                        (List.length tags)
+                        (List.length movie.tags)
                     , "🏷"
                     ]
                 )
             ]
-        , if rating > 0 then
+        , if movie.rating > 0 then
             span [ class "badge badge-warning" ]
                 [ text
                     (String.concat
                         [ String.fromFloat
-                            rating
+                            movie.rating
                         , "⭐️"
                         ]
                     )
@@ -250,6 +326,9 @@ viewMovieMeta rating tags =
           else
             div [] []
         ]
+    , viewResolution movie.resolution
+    , viewPlaycount movie.playcount
+    ]
 
 
 viewPlaycount : Int -> Html Msg

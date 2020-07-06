@@ -48,6 +48,7 @@ type alias Model =
 type alias Theater =
     { filter : Filter
     , sortBy : SortBy
+    , displayTagForMovie : Maybe Int
     }
 
 
@@ -109,6 +110,10 @@ type ApiMsgs
 type TheaterMsgs
     = SortTable SortBy
     | TitleFilter String
+    | DisplayTagsFor Int
+    | StopDisplayTags
+    | RemoveTag Int String
+    | AddTag Int String
 
 
 type HospitalMsgs

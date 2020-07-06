@@ -1,12 +1,26 @@
-module MainApi exposing (cleanAndScan, getInit, refreshMovies, update)
+module MainApi exposing (cleanAndScan, getInit, refreshMovies, setTags, update)
 
 import Browser exposing (UrlRequest(..))
 import Http
+import Json.Encode
 import Model exposing (ApiMsgs(..), CurrentView(..), HospitalMsgs(..), Model, Msg(..), SortBy(..))
 import Platform.Cmd
 import Process
 import Task
 import Time
+
+
+setTags : Int -> List String -> Cmd Msg
+setTags movie_id tags =
+    Http.request
+        { method = "PUT"
+        , headers = []
+        , url = "/api/movie/" ++ String.fromInt movie_id
+        , body = Http.jsonBody (Json.Encode.list Json.Encode.string tags)
+        , expect = Http.expectString (\msg -> ApiMsg (DataStringReceived msg))
+        , timeout = Nothing
+        , tracker = Nothing
+        }
 
 
 refreshMovies : List Int -> Cmd Msg
@@ -160,7 +174,7 @@ update msg model =
             )
 
         DataStringReceived (Ok _) ->
-            ( model, getAllErrors )
+            ( model, Cmd.none )
 
         DataStringReceived (Err httpError) ->
             ( { model

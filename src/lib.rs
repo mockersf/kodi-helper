@@ -276,3 +276,16 @@ pub async fn refresh_movie(movie_id: web::Path<u16>) -> HttpResponse {
 pub fn get_config() -> HttpResponse {
     HttpResponse::Ok().json(CONFIG.clone())
 }
+
+#[instrument(level = "info")]
+pub async fn set_movie_tags(
+    movie_id: web::Path<u16>,
+    tags: web::Json<Vec<String>>,
+) -> HttpResponse {
+    let kodi_rpc = kodi_rpc::KodiRPC::new(&CONFIG.kodis[0].url);
+    if let Err(err) = kodi_rpc.set_movie_details(*movie_id, (*tags).clone()).await {
+        HttpResponse::InternalServerError().json(format!("error: {}", err))
+    } else {
+        HttpResponse::Ok().json("ok")
+    }
+}

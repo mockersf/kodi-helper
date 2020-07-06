@@ -7,6 +7,7 @@ mod get_info_booleans;
 mod get_movies;
 mod refresh_movie;
 mod scan_library;
+mod set_movie_details;
 
 pub struct KodiRPC {
     client: reqwest::Client,

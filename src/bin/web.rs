@@ -30,7 +30,8 @@ async fn main() -> std::io::Result<()> {
             )
             .service(
                 web::resource("/api/movie/{movie_id}")
-                    .route(web::delete().to(kodi_helper::refresh_movie)),
+                    .route(web::delete().to(kodi_helper::refresh_movie))
+                    .route(web::put().to(kodi_helper::set_movie_tags)),
             )
             .service(
                 web::resource("/api/errors/duplicates").to(kodi_helper::get_duplicate_movies_list),
