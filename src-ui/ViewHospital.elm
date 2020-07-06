@@ -19,7 +19,7 @@ maybeIsNothing m =
             True
 
 
-viewSickMovies : Model.Hospital -> Maybe Time.Posix -> Model.MovieList -> Model.Kodi -> Html Msg
+viewSickMovies : Model.Hospital -> Maybe Time.Posix -> List Model.Movie -> Model.Kodi -> Html Msg
 viewSickMovies hospital mtime movie_list kodi =
     div []
         [ div [ style "margin" "1rem" ]
@@ -211,7 +211,7 @@ viewSickMovies hospital mtime movie_list kodi =
         ]
 
 
-viewSickMovieList : Model.MovieList -> Model.Kodi -> Html Msg
+viewSickMovieList : List Model.Movie -> Model.Kodi -> Html Msg
 viewSickMovieList movie_list kodi =
     div []
         [ em []

@@ -8,7 +8,6 @@ module Model exposing
     , Kodi
     , Model
     , Movie
-    , MovieList
     , Msg(..)
     , Resolution(..)
     , SickType(..)
@@ -22,6 +21,7 @@ module Model exposing
     , movieListDecoder
     , pathListDecoder
     , placeholderMovie
+    , setMovieCard
     )
 
 import Browser exposing (UrlRequest(..))
@@ -35,7 +35,7 @@ import Url
 
 type alias Model =
     { navKey : Nav.Key
-    , movieList : MovieList
+    , movieList : List Movie
     , theater : Theater
     , errorMessage : Maybe String
     , view : CurrentView
@@ -99,10 +99,10 @@ type Msg
 
 type ApiMsgs
     = DataStringReceived (Result Http.Error String)
-    | DataMovieListReceived (Result Http.Error MovieList)
+    | DataMovieListReceived (Result Http.Error (List Movie))
     | DataConfigReceived (Result Http.Error Config)
-    | DataDuplicatesReceived (Result Http.Error MovieList)
-    | DataRecognitionErrorsReceived (Result Http.Error MovieList)
+    | DataDuplicatesReceived (Result Http.Error (List Movie))
+    | DataRecognitionErrorsReceived (Result Http.Error (List Movie))
     | DataMissingMoviesReceived (Result Http.Error (List File))
 
 
@@ -153,6 +153,7 @@ type alias Movie =
     , rating : Float
     , playcount : Int
     , set : Maybe String
+    , tags : List String
     }
 
 
@@ -170,10 +171,24 @@ placeholderMovie path =
         0
         0
         Nothing
+        []
 
 
-type alias MovieList =
-    List Movie
+setMovieCard : Maybe String -> Movie
+setMovieCard set_name =
+    Movie
+        -1
+        (Maybe.withDefault "" set_name)
+        0
+        ""
+        ""
+        Nothing
+        Nothing
+        ""
+        0
+        0
+        set_name
+        []
 
 
 type Resolution
@@ -221,7 +236,7 @@ defaultKodi =
     Kodi "local" "localhost:8080"
 
 
-movieListDecoder : Decode.Decoder MovieList
+movieListDecoder : Decode.Decoder (List Movie)
 movieListDecoder =
     Decode.list movieDecoder
 
@@ -240,6 +255,7 @@ movieDecoder =
         |> required "rating" Decode.float
         |> required "playcount" Decode.int
         |> required "set" (Decode.nullable Decode.string)
+        |> required "tags" (Decode.list Decode.string)
 
 
 resolutionDecoder : Decode.Decoder Resolution

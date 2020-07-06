@@ -74,6 +74,7 @@ struct MovieDetailsResponse {
     playcount: u8,
     set: String,
     dateadded: String,
+    tag: Vec<String>,
     streamdetails: MoviesStreamDetailsResponse,
 }
 
@@ -103,6 +104,7 @@ impl KodiRPC {
                         "playcount".to_string(),
                         "set".to_string(),
                         "dateadded".to_string(),
+                        "tag".to_string(),
                     ],
                     limits: Some(JsonRPCRequestLimits { end: 10000 }),
                 }),
@@ -112,7 +114,7 @@ impl KodiRPC {
 
         let mut movies: Vec<crate::Movie> = data
             .movies
-            .iter()
+            .into_iter()
             .map(|movie| {
                 let resolution = movie.streamdetails.video.get(0).map(|stream| {
                     if stream.height < 600 {
@@ -130,30 +132,26 @@ impl KodiRPC {
 
                 crate::Movie {
                     id: movie.movieid,
-                    title: movie.title.clone(),
+                    title: movie.title,
                     runtime: movie.runtime,
-                    path: movie.file.clone(),
-                    premiered: movie.premiered.clone(),
-                    dateadded: movie.dateadded.clone(),
+                    path: movie.file,
+                    premiered: movie.premiered,
+                    dateadded: movie.dateadded,
                     resolution,
-                    poster: movie
-                        .art
-                        .poster
-                        .as_ref()
-                        .map(|url| {
-                            percent_encoding::percent_encode(
-                                url.as_bytes(),
-                                percent_encoding::NON_ALPHANUMERIC,
-                            )
-                            .to_string()
-                        })
-                        .clone(),
+                    poster: movie.art.poster.map(|url| {
+                        percent_encoding::percent_encode(
+                            url.as_bytes(),
+                            percent_encoding::NON_ALPHANUMERIC,
+                        )
+                        .to_string()
+                    }),
                     rating: movie.rating,
                     playcount: movie.playcount,
                     set: match movie.set.as_ref() {
                         "" => None,
                         set => Some(set.to_string()),
                     },
+                    tags: movie.tag,
                 }
             })
             .collect();

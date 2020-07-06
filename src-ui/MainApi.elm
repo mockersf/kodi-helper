@@ -33,7 +33,7 @@ refreshMovies movie_ids =
         )
 
 
-updateMovies : Task.Task Http.Error Model.MovieList
+updateMovies : Task.Task Http.Error (List Model.Movie)
 updateMovies =
     Http.task
         { method = "GET"

@@ -48,14 +48,14 @@ movieCompare sortBy movieA movieB =
                     compare movieA.premiered movieB.premiered
 
 
-sortMovies : SortBy -> Model.MovieList -> Model.MovieList
+sortMovies : SortBy -> List Model.Movie -> List Model.Movie
 sortMovies sortBy movie_list =
     List.sortWith
         (movieCompare sortBy)
         movie_list
 
 
-viewMovies : Theater -> Model.MovieList -> Model.Kodi -> Html Msg
+viewMovies : Theater -> List Model.Movie -> Model.Kodi -> Html Msg
 viewMovies theater movie_list kodi =
     let
         filtered_list =
@@ -85,18 +85,7 @@ viewMovies theater movie_list kodi =
                                 else
                                     ( movie.set
                                     , movies
-                                        ++ [ Model.Movie
-                                                -1
-                                                (Maybe.withDefault "" movie.set)
-                                                -1
-                                                ""
-                                                ""
-                                                Nothing
-                                                Nothing
-                                                ""
-                                                0
-                                                0
-                                                movie.set
+                                        ++ [ Model.setMovieCard movie.set
                                            , movie
                                            ]
                                     )
@@ -122,7 +111,7 @@ viewMovies theater movie_list kodi =
         kodi
 
 
-viewMovieList : Theater -> Model.MovieList -> Model.Kodi -> Html Msg
+viewMovieList : Theater -> List Model.Movie -> Model.Kodi -> Html Msg
 viewMovieList theater movie_list kodi =
     div []
         [ div [ class "input-group mb-3 sticky-top", style "margin-top" "0.5rem", style "padding-top" "0.5rem" ]
@@ -211,7 +200,7 @@ viewMovie movie kodi =
                 , div [] [ em [ class "text-muted small" ] [ text movie.premiered ] ]
                 , ViewCommon.viewDuration movie.runtime
                 , viewResolution movie.resolution
-                , viewRating movie.rating
+                , viewMovieMeta movie.rating movie.tags
                 , viewPlaycount movie.playcount
                 ]
         ]
@@ -229,27 +218,44 @@ viewResolution resolution =
         div [] []
 
 
-viewRating : Float -> Html Msg
-viewRating rating =
-    if rating > 0 then
-        span [ class "badge badge-light", style "position" "absolute", style "bottom" "0", style "right" "-0.1em" ]
+viewMovieMeta : Float -> List String -> Html Msg
+viewMovieMeta rating tags =
+    div
+        [ style "position" "absolute"
+        , style "bottom" "0"
+        , style "right" "-0.1em"
+        , style "display" "flex"
+        , style "flex-direction" "column"
+        ]
+        [ span [ class "badge badge-info" ]
             [ text
                 (String.concat
-                    [ String.fromFloat
-                        rating
-                    , "⭐️"
+                    [ String.fromInt
+                        (List.length tags)
+                    , "🏷"
                     ]
                 )
             ]
+        , if rating > 0 then
+            span [ class "badge badge-warning" ]
+                [ text
+                    (String.concat
+                        [ String.fromFloat
+                            rating
+                        , "⭐️"
+                        ]
+                    )
+                ]
 
-    else
-        div [] []
+          else
+            div [] []
+        ]
 
 
 viewPlaycount : Int -> Html Msg
 viewPlaycount playcount =
     if playcount > 0 then
-        span [ class "badge badge-light", style "position" "absolute", style "bottom" "0", style "left" "-0.1em" ]
+        span [ class "badge badge-primary", style "position" "absolute", style "bottom" "0", style "left" "-0.1em" ]
             [ text
                 (String.concat
                     [ "👁"
