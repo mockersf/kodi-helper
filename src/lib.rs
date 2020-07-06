@@ -262,11 +262,8 @@ pub async fn clean_and_scan_kodi_library(
     }
 }
 
-#[instrument(skip(_movie_list), level = "info")]
-pub async fn refresh_movie(
-    _movie_list: web::Data<std::sync::RwLock<Vec<Movie>>>,
-    movie_id: web::Path<u16>,
-) -> HttpResponse {
+#[instrument(level = "info")]
+pub async fn refresh_movie(movie_id: web::Path<u16>) -> HttpResponse {
     let kodi_rpc = kodi_rpc::KodiRPC::new(&CONFIG.kodis[0].url);
     if let Err(err) = kodi_rpc.refresh_movie(*movie_id).await {
         HttpResponse::InternalServerError().json(format!("error: {}", err))
