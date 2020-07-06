@@ -32,7 +32,9 @@ struct Config {
     pub kodis: Vec<Kodi>,
     pub filepatterns_to_ignore: Vec<String>,
     pub movies_directory: String,
+    pub name_differences_threshold: Option<usize>,
 }
+
 #[derive(Deserialize, Serialize, Clone, Debug)]
 struct Kodi {
     pub name: String,
@@ -233,7 +235,9 @@ pub fn get_recognition_errors_list(
             )
         })
         .filter(|(movie, (title, year))| {
-            strsim::levenshtein(&movie.title, title) > 4 || !movie.premiered.starts_with(year)
+            strsim::levenshtein(&movie.title, title)
+                > CONFIG.name_differences_threshold.unwrap_or(3)
+                || !movie.premiered.starts_with(year)
         })
         .map(|(movie, _)| movie)
         .collect();
