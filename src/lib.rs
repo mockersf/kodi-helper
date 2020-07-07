@@ -277,11 +277,27 @@ pub fn get_config() -> HttpResponse {
     HttpResponse::Ok().json(CONFIG.clone())
 }
 
-#[instrument(level = "info")]
+#[instrument(skip(movie_list), slevel = "info")]
 pub async fn set_movie_tags(
+    movie_list: web::Data<std::sync::RwLock<Vec<Movie>>>,
     movie_id: web::Path<u16>,
     tags: web::Json<Vec<String>>,
 ) -> HttpResponse {
+    let mut movie_list = movie_list.write().unwrap();
+
+    *movie_list = movie_list
+        .iter()
+        .map(|movie| {
+            if movie.id == *movie_id {
+                let mut movie = movie.clone();
+                movie.tags = tags.clone();
+                movie
+            } else {
+                movie.clone()
+            }
+        })
+        .collect();
+
     let kodi_rpc = kodi_rpc::KodiRPC::new(&CONFIG.kodis[0].url);
     if let Err(err) = kodi_rpc.set_movie_details(*movie_id, (*tags).clone()).await {
         HttpResponse::InternalServerError().json(format!("error: {}", err))

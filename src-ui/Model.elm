@@ -96,6 +96,7 @@ type Msg
     | ApiMsg ApiMsgs
     | TheaterMsg TheaterMsgs
     | HospitalMsg HospitalMsgs
+    | Noops
 
 
 type ApiMsgs

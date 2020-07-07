@@ -3,7 +3,7 @@ module ViewTheater exposing (viewMovies)
 import Browser exposing (UrlRequest(..))
 import Html exposing (Html, a, button, div, em, h4, h5, h6, input, span, table, tbody, td, text, tr)
 import Html.Attributes exposing (attribute, class, colspan, href, id, style, target, type_, value)
-import Html.Events exposing (keyCode, on, onClick, onInput, targetValue)
+import Html.Events exposing (custom, keyCode, on, onClick, onInput, targetValue)
 import Json.Decode as JD
 import Model exposing (CurrentView(..), Msg(..), SortBy(..), Theater, TheaterMsgs(..))
 import ViewCommon
@@ -135,12 +135,18 @@ whenEnterPressed_ReceiveInputValue tagger =
     on "keydown" (JD.map2 (\_ value -> tagger value) decode_Enter targetValue)
 
 
+onClickNoBubble : msg -> Html.Attribute msg
+onClickNoBubble message =
+    Html.Events.custom "click" (JD.succeed { message = message, stopPropagation = True, preventDefault = True })
+
+
 viewMovieDetails : Maybe Model.Movie -> Html Msg
 viewMovieDetails movie_details =
     case movie_details of
         Just movie ->
             div [ class "modal", style "display" "block", onClick (TheaterMsg StopDisplayTags) ]
-                [ div [ class "modal-dialog" ]
+                [ div
+                    [ class "modal-dialog", onClickNoBubble Noops ]
                     [ div [ class "modal-content" ]
                         [ div [ class "modal-header" ]
                             [ h5 [ class "modal-title" ] [ text movie.title ]

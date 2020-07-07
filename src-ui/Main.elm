@@ -75,6 +75,9 @@ update msg model =
         ApiMsg api_msg ->
             MainApi.update api_msg model
 
+        Noops ->
+            ( model, Cmd.none )
+
 
 main : Program () Model Msg
 main =
