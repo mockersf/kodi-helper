@@ -109,6 +109,7 @@ type ApiMsgs
     | DataRecognitionErrorsReceived (Result Http.Error (List Movie))
     | DataMissingMoviesReceived (Result Http.Error (List File))
     | UpdateTags (List Movie)
+    | QuickUpdateTags (List String)
 
 
 type TheaterMsgs

@@ -13,15 +13,18 @@ import Time
 
 setTags : Int -> List String -> Cmd Msg
 setTags movie_id tags =
-    Http.request
-        { method = "PUT"
-        , headers = []
-        , url = "/api/movie/" ++ String.fromInt movie_id
-        , body = Http.jsonBody (Json.Encode.list Json.Encode.string tags)
-        , expect = Http.expectString (\msg -> ApiMsg (DataStringReceived msg))
-        , timeout = Nothing
-        , tracker = Nothing
-        }
+    Cmd.batch
+        [ Http.request
+            { method = "PUT"
+            , headers = []
+            , url = "/api/movie/" ++ String.fromInt movie_id
+            , body = Http.jsonBody (Json.Encode.list Json.Encode.string tags)
+            , expect = Http.expectString (\msg -> ApiMsg (DataStringReceived msg))
+            , timeout = Nothing
+            , tracker = Nothing
+            }
+        , Task.succeed (ApiMsg (QuickUpdateTags tags)) |> Task.perform identity
+        ]
 
 
 refreshMovies : List Int -> Cmd Msg
@@ -141,6 +144,19 @@ update msg model =
 
                 tags =
                     List.sort (List.Extra.unique (List.concat (List.map .tags movie_list)))
+
+                updated_theater =
+                    { old_theater | tags = tags }
+            in
+            ( { model | theater = updated_theater }, Cmd.none )
+
+        QuickUpdateTags new_tags ->
+            let
+                old_theater =
+                    model.theater
+
+                tags =
+                    List.sort (List.Extra.unique (List.concat [ model.theater.tags, new_tags ]))
 
                 updated_theater =
                     { old_theater | tags = tags }
