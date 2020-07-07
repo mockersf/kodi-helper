@@ -49,6 +49,7 @@ type alias Theater =
     { filter : Filter
     , sortBy : SortBy
     , displayTagForMovie : Maybe Int
+    , tags : List String
     }
 
 
@@ -79,7 +80,8 @@ type SickType
 
 type alias Filter =
     { title : String
-    , resolution : Maybe Resolution
+    , resolution : List (Maybe Resolution)
+    , tags : List String
     }
 
 
@@ -106,11 +108,15 @@ type ApiMsgs
     | DataDuplicatesReceived (Result Http.Error (List Movie))
     | DataRecognitionErrorsReceived (Result Http.Error (List Movie))
     | DataMissingMoviesReceived (Result Http.Error (List File))
+    | UpdateTags (List Movie)
 
 
 type TheaterMsgs
     = SortTable SortBy
     | TitleFilter String
+    | ToggleTagFilter String
+    | ClearTagFilter
+    | ToggleResolutionFilter (Maybe Resolution)
     | DisplayTagsFor Int
     | StopDisplayTags
     | RemoveTag Int String

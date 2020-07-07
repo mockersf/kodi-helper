@@ -62,9 +62,12 @@ viewMovies theater movie_list kodi =
         filtered_list =
             List.filter
                 (\movie ->
-                    String.contains theater.filter.title (String.toLower movie.title)
+                    (String.contains theater.filter.title (String.toLower movie.title)
                         || String.contains theater.filter.title (String.toLower (Maybe.withDefault "" movie.set))
                         || not (List.isEmpty (List.filter (\tag -> String.contains theater.filter.title (String.toLower tag)) movie.tags))
+                    )
+                        && List.member movie.resolution theater.filter.resolution
+                        && (List.isEmpty theater.filter.tags || (not (List.isEmpty movie.tags) && List.all (\tag -> List.member tag movie.tags) theater.filter.tags))
                 )
                 movie_list
 
@@ -198,8 +201,21 @@ viewMovieDetails movie_details =
 viewMovieList : Theater -> List Model.Movie -> Model.Kodi -> Html Msg
 viewMovieList theater movie_list kodi =
     div []
-        [ div [ class "input-group mb-3 sticky-top", style "margin-top" "0.5rem", style "padding-top" "0.5rem" ]
-            [ div [ class "input-group-prepend" ] [ span [ class "input-group-text" ] [ text "Title" ] ]
+        [ div
+            [ class "input-group mb-3 sticky-top", style "margin-top" "0.5rem", style "padding-top" "0.5rem" ]
+            [ div [ class "input-group-prepend" ]
+                [ button
+                    [ class "btn btn-outline-secondary"
+                    , type_ "button"
+                    , style "opacity" "100"
+                    , style "background-color" "rgb(233, 236, 239)"
+                    , style "border-color" "rgb(206, 212, 218)"
+                    , attribute "data-toggle" "collapse"
+                    , attribute "data-target" "#collapsableExtraFilters"
+                    ]
+                    [ text "Extra Filters" ]
+                , span [ class "input-group-text" ] [ text "Title" ]
+                ]
             , input [ type_ "text", class "form-control", onInput (\i -> TheaterMsg (TitleFilter i)), value theater.filter.title ] []
             , div [ class "input-group-append" ]
                 [ button
@@ -235,8 +251,74 @@ viewMovieList theater movie_list kodi =
                     ]
                 ]
             ]
+        , div [ class "collapse", id "collapsableExtraFilters" ]
+            [ div [ class "card card-body" ]
+                [ div []
+                    [ text "Resolution:"
+                    , viewResolutionFilter theater (Just Model.UHD_8k)
+                    , viewResolutionFilter theater (Just Model.UHD_4k)
+                    , viewResolutionFilter theater (Just Model.HD_1080p)
+                    , viewResolutionFilter theater (Just Model.HD_720p)
+                    , viewResolutionFilter theater (Just Model.SD)
+                    , viewResolutionFilter theater Nothing
+                    ]
+                , div []
+                    (text "Tags:"
+                        :: List.map (\tag -> viewTagFilter theater tag) theater.tags
+                        ++ [ span
+                                [ class
+                                    (if List.isEmpty theater.filter.tags then
+                                        "badge badge-light"
+
+                                     else
+                                        "badge badge-warning"
+                                    )
+                                , onClick (TheaterMsg ClearTagFilter)
+                                , style "margin" "0.25rem"
+                                ]
+                                [ text "clear" ]
+                           ]
+                    )
+                ]
+            ]
         , div [ class "card-deck" ] (List.map (\movie -> viewMovie movie kodi) movie_list)
         ]
+
+
+viewResolutionFilter : Theater -> Maybe Model.Resolution -> Html Msg
+viewResolutionFilter theater resolution =
+    span
+        [ class
+            (if List.member resolution theater.filter.resolution then
+                String.concat
+                    [ "badge "
+                    , ViewCommon.resolutionToColor resolution
+                    ]
+
+             else
+                "badge badge-light"
+            )
+        , onClick (TheaterMsg (ToggleResolutionFilter resolution))
+        , style "margin" "0.25rem"
+        , style "width" "3rem"
+        ]
+        [ text (ViewCommon.resolutionToQuality resolution) ]
+
+
+viewTagFilter : Theater -> String -> Html Msg
+viewTagFilter theater tag =
+    span
+        [ class
+            (if List.member tag theater.filter.tags then
+                "badge badge-dark"
+
+             else
+                "badge badge-light"
+            )
+        , onClick (TheaterMsg (ToggleTagFilter tag))
+        , style "margin" "0.25rem"
+        ]
+        [ text tag ]
 
 
 viewSortBy : SortBy -> String
@@ -291,7 +373,13 @@ viewMovie movie kodi =
 viewResolution : Maybe Model.Resolution -> Html Msg
 viewResolution resolution =
     if not (maybeIsNothing resolution) then
-        span [ class (String.concat [ "badge ", ViewCommon.resolutionToColor resolution ]), style "position" "absolute", style "top" "0", style "right" "-0.15em" ]
+        span
+            [ class (String.concat [ "badge ", ViewCommon.resolutionToColor resolution ])
+            , style "position" "absolute"
+            , style "top" "0"
+            , style "right" "-0.15em"
+            , style "width" "3rem"
+            ]
             [ text
                 (ViewCommon.resolutionToQuality resolution)
             ]

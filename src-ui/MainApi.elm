@@ -3,6 +3,7 @@ module MainApi exposing (cleanAndScan, getInit, refreshMovies, setTags, update)
 import Browser exposing (UrlRequest(..))
 import Http
 import Json.Encode
+import List.Extra
 import Model exposing (ApiMsgs(..), CurrentView(..), HospitalMsgs(..), Model, Msg(..), SortBy(..))
 import Platform.Cmd
 import Process
@@ -133,6 +134,19 @@ getAllErrors =
 update : ApiMsgs -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        UpdateTags movie_list ->
+            let
+                old_theater =
+                    model.theater
+
+                tags =
+                    List.sort (List.Extra.unique (List.concat (List.map .tags movie_list)))
+
+                updated_theater =
+                    { old_theater | tags = tags }
+            in
+            ( { model | theater = updated_theater }, Cmd.none )
+
         DataConfigReceived (Ok config) ->
             ( { model
                 | config = config
@@ -157,7 +171,10 @@ update msg model =
             ( { model
                 | movieList = movies
               }
-            , getAllErrors
+            , Cmd.batch
+                [ getAllErrors
+                , Task.succeed (ApiMsg (UpdateTags movies)) |> Task.perform identity
+                ]
             )
 
         DataMovieListReceived (Err httpError) ->

@@ -32,7 +32,12 @@ init _ url key =
     ( Model
         key
         []
-        (Theater (Model.Filter "" Nothing) SortByTitle Nothing)
+        (Theater
+            (Model.Filter "" [ Nothing, Just Model.SD, Just Model.HD_720p, Just Model.HD_1080p, Just Model.UHD_4k, Just Model.UHD_8k ] [])
+            SortByTitle
+            Nothing
+            []
+        )
         Nothing
         (urlToView url)
         (Hospital False [] True [] True [] True [] True True Nothing Nothing)

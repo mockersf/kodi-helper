@@ -38,6 +38,68 @@ update msg model =
             in
             ( { model | theater = updated_theater }, Cmd.none )
 
+        ToggleTagFilter tag ->
+            let
+                old_filter =
+                    model.theater.filter
+
+                new_filter =
+                    if List.member tag old_filter.tags then
+                        { old_filter | tags = List.filter (\t -> t /= tag) old_filter.tags }
+
+                    else
+                        { old_filter | tags = tag :: old_filter.tags }
+
+                old_theater =
+                    model.theater
+
+                updated_theater =
+                    { old_theater
+                        | filter = new_filter
+                    }
+            in
+            ( { model | theater = updated_theater }, Cmd.none )
+
+        ClearTagFilter ->
+            let
+                old_filter =
+                    model.theater.filter
+
+                new_filter =
+                    { old_filter | tags = [] }
+
+                old_theater =
+                    model.theater
+
+                updated_theater =
+                    { old_theater
+                        | filter = new_filter
+                    }
+            in
+            ( { model | theater = updated_theater }, Cmd.none )
+
+        ToggleResolutionFilter resolution ->
+            let
+                old_filter =
+                    model.theater.filter
+
+                new_filter =
+                    if List.member resolution old_filter.resolution then
+                        { old_filter | resolution = List.filter (\res -> res /= resolution) old_filter.resolution }
+
+                    else
+                        { old_filter | resolution = resolution :: old_filter.resolution }
+
+                old_theater =
+                    model.theater
+
+                updated_theater =
+                    { old_theater
+                        | filter = new_filter
+                    }
+            in
+            ( { model | theater = updated_theater }, Cmd.none )
+
         DisplayTagsFor movie_id ->
             let
                 old_theater =
