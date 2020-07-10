@@ -23,13 +23,13 @@ async fn main() -> std::io::Result<()> {
             // API
             .service(web::resource("/api/config").to(kodi_helper::get_config))
             .service(
-                web::resource("/api/movie_list")
+                web::resource("/api/movies")
                     .route(web::get().to(kodi_helper::get_movie_list))
                     .route(web::delete().to(kodi_helper::clean_and_scan_kodi_library))
                     .route(web::put().to(kodi_helper::update_movie_list)),
             )
             .service(
-                web::resource("/api/movie/{movie_id}")
+                web::resource("/api/movies/{movie_id}")
                     .route(web::delete().to(kodi_helper::refresh_movie))
                     .route(web::put().to(kodi_helper::set_movie_tags)),
             )

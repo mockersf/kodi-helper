@@ -17,7 +17,7 @@ setTags movie_id tags =
         [ Http.request
             { method = "PUT"
             , headers = []
-            , url = "/api/movie/" ++ String.fromInt movie_id
+            , url = "/api/movies/" ++ String.fromInt movie_id
             , body = Http.jsonBody (Json.Encode.list Json.Encode.string tags)
             , expect = Http.expectString (\msg -> ApiMsg (DataStringReceived msg))
             , timeout = Nothing
@@ -36,7 +36,7 @@ refreshMovies movie_ids =
                     Http.request
                         { method = "DELETE"
                         , headers = []
-                        , url = "/api/movie/" ++ String.fromInt id
+                        , url = "/api/movies/" ++ String.fromInt id
                         , body = Http.emptyBody
                         , expect = Http.expectString (\msg -> ApiMsg (DataStringReceived msg))
                         , timeout = Nothing
@@ -61,7 +61,7 @@ updateMovies =
     Http.task
         { method = "PUT"
         , headers = []
-        , url = "/api/update_movie_list"
+        , url = "/api/movies"
         , body = Http.emptyBody
         , resolver = Http.stringResolver <| Model.handleJsonResponse <| Model.movieListDecoder
         , timeout = Nothing
@@ -75,7 +75,7 @@ cleanAndScan =
         , Http.request
             { method = "DELETE"
             , headers = []
-            , url = "/api/movie_list"
+            , url = "/api/movies"
             , body = Http.emptyBody
             , expect = Http.expectJson (\json -> ApiMsg (DataMovieListReceived json)) Model.movieListDecoder
             , timeout = Nothing
@@ -87,7 +87,7 @@ cleanAndScan =
 getMovies : Cmd Msg
 getMovies =
     Http.get
-        { url = "/api/movie_list"
+        { url = "/api/movies"
         , expect = Http.expectJson (\json -> ApiMsg (DataMovieListReceived json)) Model.movieListDecoder
         }
 
