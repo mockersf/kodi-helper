@@ -78,6 +78,64 @@ update msg model =
             in
             ( { model | theater = updated_theater }, Cmd.none )
 
+        ChangeSeenFilter seeen_filter ->
+            let
+                old_filter =
+                    model.theater.filter
+
+                new_filter =
+                    { old_filter | seen = seeen_filter }
+
+                old_theater =
+                    model.theater
+
+                updated_theater =
+                    { old_theater
+                        | filter = new_filter
+                    }
+            in
+            ( { model | theater = updated_theater }, Cmd.none )
+
+        ToggleGenreFilter genre ->
+            let
+                old_filter =
+                    model.theater.filter
+
+                new_filter =
+                    if List.member genre old_filter.genres then
+                        { old_filter | genres = List.filter (\g -> g /= genre) old_filter.genres }
+
+                    else
+                        { old_filter | genres = genre :: old_filter.genres }
+
+                old_theater =
+                    model.theater
+
+                updated_theater =
+                    { old_theater
+                        | filter = new_filter
+                    }
+            in
+            ( { model | theater = updated_theater }, Cmd.none )
+
+        ClearGenreFilter ->
+            let
+                old_filter =
+                    model.theater.filter
+
+                new_filter =
+                    { old_filter | genres = [] }
+
+                old_theater =
+                    model.theater
+
+                updated_theater =
+                    { old_theater
+                        | filter = new_filter
+                    }
+            in
+            ( { model | theater = updated_theater }, Cmd.none )
+
         ToggleResolutionFilter resolution ->
             let
                 old_filter =

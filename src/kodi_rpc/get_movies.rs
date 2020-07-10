@@ -75,6 +75,7 @@ struct MovieDetailsResponse {
     set: String,
     dateadded: String,
     tag: Vec<String>,
+    genre: Vec<String>,
     streamdetails: MoviesStreamDetailsResponse,
 }
 
@@ -105,6 +106,7 @@ impl KodiRPC {
                         "set".to_string(),
                         "dateadded".to_string(),
                         "tag".to_string(),
+                        "genre".to_string(),
                     ],
                     limits: Some(JsonRPCRequestLimits { end: 10000 }),
                 }),
@@ -152,6 +154,7 @@ impl KodiRPC {
                         set => Some(set.to_string()),
                     },
                     tags: movie.tag,
+                    genres: movie.genre,
                 }
             })
             .collect();

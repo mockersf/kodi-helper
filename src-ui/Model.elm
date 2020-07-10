@@ -10,6 +10,7 @@ module Model exposing
     , Movie
     , Msg(..)
     , Resolution(..)
+    , SeenFilter(..)
     , SickType(..)
     , SortBy(..)
     , Theater
@@ -50,6 +51,7 @@ type alias Theater =
     , sortBy : SortBy
     , displayTagForMovie : Maybe Int
     , tags : List String
+    , genres : List String
     }
 
 
@@ -82,7 +84,15 @@ type alias Filter =
     { title : String
     , resolution : List (Maybe Resolution)
     , tags : List String
+    , genres : List String
+    , seen : SeenFilter
     }
+
+
+type SeenFilter
+    = SeenFilterAll
+    | SeenFilterSeen
+    | SeenFilterNotSeen
 
 
 type CurrentView
@@ -117,7 +127,10 @@ type TheaterMsgs
     | TitleFilter String
     | ToggleTagFilter String
     | ClearTagFilter
+    | ToggleGenreFilter String
+    | ClearGenreFilter
     | ToggleResolutionFilter (Maybe Resolution)
+    | ChangeSeenFilter SeenFilter
     | DisplayTagsFor Int
     | StopDisplayTags
     | RemoveTag Int String
@@ -167,6 +180,7 @@ type alias Movie =
     , playcount : Int
     , set : Maybe String
     , tags : List String
+    , genres : List String
     }
 
 
@@ -185,6 +199,7 @@ placeholderMovie path =
         0
         Nothing
         []
+        []
 
 
 setMovieCard : Maybe String -> Movie
@@ -201,6 +216,7 @@ setMovieCard set_name =
         0
         0
         set_name
+        []
         []
 
 
@@ -269,6 +285,7 @@ movieDecoder =
         |> required "playcount" Decode.int
         |> required "set" (Decode.nullable Decode.string)
         |> required "tags" (Decode.list Decode.string)
+        |> required "genres" (Decode.list Decode.string)
 
 
 resolutionDecoder : Decode.Decoder Resolution

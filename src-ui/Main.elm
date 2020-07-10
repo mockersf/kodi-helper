@@ -33,9 +33,15 @@ init _ url key =
         key
         []
         (Theater
-            (Model.Filter "" [ Nothing, Just Model.SD, Just Model.HD_720p, Just Model.HD_1080p, Just Model.UHD_4k, Just Model.UHD_8k ] [])
+            (Model.Filter ""
+                [ Nothing, Just Model.SD, Just Model.HD_720p, Just Model.HD_1080p, Just Model.UHD_4k, Just Model.UHD_8k ]
+                []
+                []
+                Model.SeenFilterAll
+            )
             SortByTitle
             Nothing
+            []
             []
         )
         Nothing

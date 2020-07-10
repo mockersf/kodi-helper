@@ -145,8 +145,11 @@ update msg model =
                 tags =
                     List.sort (List.Extra.unique (List.concat (List.map .tags movie_list)))
 
+                genres =
+                    List.sort (List.Extra.unique (List.concat (List.map .genres movie_list)))
+
                 updated_theater =
-                    { old_theater | tags = tags }
+                    { old_theater | tags = tags, genres = genres }
             in
             ( { model | theater = updated_theater }, Cmd.none )
 

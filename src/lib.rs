@@ -64,6 +64,7 @@ pub struct Movie {
     pub set: Option<String>,
     pub dateadded: String,
     pub tags: Vec<String>,
+    pub genres: Vec<String>,
 }
 
 #[derive(Serialize, Clone, Debug)]
