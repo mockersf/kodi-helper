@@ -209,14 +209,11 @@ viewMovieList theater movie_list kodi =
     div []
         [ div [ class "sticky-top", style "margin-top" "0.5rem", style "padding-top" "0.5rem" ]
             [ div
-                [ class "input-group mb-3 " ]
+                [ class "input-group mb-3 bg-secondary", style "border-radius" ".25rem" ]
                 [ div [ class "input-group-prepend" ]
                     [ button
-                        [ class "btn btn-outline-secondary"
+                        [ class "btn btn-outline-secondary text-light"
                         , type_ "button"
-                        , style "opacity" "100"
-                        , style "background-color" "rgb(233, 236, 239)"
-                        , style "border-color" "rgb(206, 212, 218)"
                         , attribute "data-toggle" "collapse"
                         , attribute "data-target" "#collapsableExtraFilters"
                         ]
@@ -225,16 +222,13 @@ viewMovieList theater movie_list kodi =
                 , input [ type_ "text", class "form-control", onInput (\i -> TheaterMsg (TitleFilter i)), value theater.filter.title ] []
                 , div [ class "input-group-append" ]
                     [ button
-                        [ class "btn btn-outline-secondary"
+                        [ class "btn btn-outline-secondary text-light"
                         , attribute "disabled" "true"
                         , style "border-right" "0px"
-                        , style "opacity" "100"
-                        , style "background-color" "rgb(233, 236, 239)"
-                        , style "border-color" "rgb(206, 212, 218)"
                         ]
                         [ text "Sort By:" ]
                     , button
-                        [ class "btn btn-outline-secondary dropdown-toggle"
+                        [ class "btn btn-outline-secondary dropdown-toggle text-light"
                         , type_ "button"
                         , id "dropdownMenuButton"
                         , attribute "data-toggle" "dropdown"
@@ -243,8 +237,6 @@ viewMovieList theater movie_list kodi =
                         , style "width" "8em"
                         , style "text-align" "right"
                         , style "border-left" "0px"
-                        , style "background-color" "rgb(233, 236, 239)"
-                        , style "border-color" "rgb(206, 212, 218)"
                         ]
                         [ text (viewSortBy theater.sortBy) ]
                     , div [ class "dropdown-menu", attribute "aria-labelledby" "dropdownMenuLink" ]

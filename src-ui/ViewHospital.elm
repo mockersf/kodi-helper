@@ -244,7 +244,14 @@ viewSickMovie movie kodi =
                 [ text movie.title ]
             , em [ class "text-muted small" ] [ text (" - " ++ movie.premiered) ]
             ]
-        , td [] [ text movie.path ]
+        , td
+            (if movie.id == -1 then
+                []
+
+             else
+                [ class "text-muted" ]
+            )
+            [ text movie.path ]
         , td []
             [ if movie.runtime > 0 then
                 ViewCommon.viewDuration movie.runtime
@@ -252,7 +259,7 @@ viewSickMovie movie kodi =
               else
                 div [] []
             ]
-        , td [] [ text (ViewCommon.resolutionToQuality movie.resolution) ]
+        , td [ class "text-muted" ] [ text (ViewCommon.resolutionToQuality movie.resolution) ]
         , td []
             [ if movie.id > 0 then
                 button

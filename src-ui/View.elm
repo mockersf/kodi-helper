@@ -35,7 +35,10 @@ viewContent model =
             [ div
                 [ class "row" ]
                 [ p
-                    [ class "col-2", style "border-bottom" "1px solid #dee2e6", style "margin-bottom" "0", style "margin-top" "1rem" ]
+                    [ class "col-2 nav-tabs"
+                    , style "margin-bottom" "0"
+                    , style "margin-top" "1rem"
+                    ]
                     [ em [] [ text (kodi.name ++ " - " ++ String.fromInt (List.length model.movieList) ++ " movies") ] ]
                 , ul [ class "nav nav-tabs justify-content-end col-10" ]
                     [ li [ class "nav-item" ]
