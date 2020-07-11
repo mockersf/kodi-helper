@@ -5,7 +5,7 @@ import Browser.Navigation as Nav
 import MainApi
 import MainHospital
 import MainTheater
-import Model exposing (ApiMsgs(..), CurrentView(..), Hospital, HospitalMsgs(..), Model, Msg(..), SortBy(..), Theater)
+import Model exposing (ApiMsgs(..), CurrentView(..), HospitalMsgs(..), Model, Msg(..), SortBy(..))
 import Time
 import Url
 import Url.Parser as Url exposing ((</>), Parser)
@@ -32,21 +32,10 @@ init _ url key =
     ( Model
         key
         []
-        (Theater
-            (Model.Filter ""
-                [ Nothing, Just Model.SD, Just Model.HD_720p, Just Model.HD_1080p, Just Model.UHD_4k, Just Model.UHD_8k ]
-                []
-                []
-                Model.SeenFilterAll
-            )
-            SortByTitle
-            Nothing
-            []
-            []
-        )
+        Model.theaterInit
         Nothing
         (urlToView url)
-        (Hospital False [] True [] True [] True [] True True Nothing Nothing)
+        Model.hospitalInit
         Nothing
         (Model.Config [ Model.defaultKodi ] 0)
     , MainApi.getInit

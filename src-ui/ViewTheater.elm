@@ -4,6 +4,7 @@ import Browser exposing (UrlRequest(..))
 import Html exposing (Html, a, button, div, em, h4, h5, h6, input, span, table, tbody, td, text, tr)
 import Html.Attributes exposing (attribute, class, colspan, href, id, style, target, type_, value)
 import Html.Events exposing (custom, keyCode, on, onClick, onInput, targetValue)
+import InfiniteScroll
 import Json.Decode as JD
 import Model exposing (CurrentView(..), Msg(..), SortBy(..), Theater, TheaterMsgs(..))
 import ViewCommon
@@ -207,7 +208,7 @@ viewMovieDetails movie_details =
 viewMovieList : Theater -> List Model.Movie -> Model.Kodi -> Html Msg
 viewMovieList theater movie_list kodi =
     div []
-        [ div [ class "sticky-top", style "margin-top" "0.5rem", style "padding-top" "0.5rem" ]
+        [ div [ style "margin-top" "0.5rem", style "padding-top" "0.5rem" ]
             [ div
                 [ class "input-group mb-3 bg-secondary", style "border-radius" ".25rem" ]
                 [ div [ class "input-group-prepend" ]
@@ -365,7 +366,14 @@ viewMovieList theater movie_list kodi =
                     ]
                 ]
             ]
-        , div [ class "card-deck" ] (List.map (\movie -> viewMovie movie kodi) movie_list)
+        , div
+            [ class "card-deck"
+            , style "height" "87vh"
+            , style "overflow" "scroll"
+            , style "align-content" "flex-start"
+            , InfiniteScroll.infiniteScroll (\msg -> TheaterMsg (InfiniteScrollMsg msg))
+            ]
+            (List.map (\movie -> viewMovie movie kodi) (List.take theater.nb_displayed movie_list))
         ]
 
 
@@ -445,7 +453,14 @@ viewSortBy sortBy =
 
 viewMovie : Model.Movie -> Model.Kodi -> Html Msg
 viewMovie movie kodi =
-    div [ class "card", style "width" "10rem", style "min-width" "10rem", style "max-width" "10rem", style "margin" "0.5rem" ]
+    div
+        [ class "card"
+        , style "width" "10rem"
+        , style "min-width" "10rem"
+        , style "max-width" "10rem"
+        , style "margin" "0.5rem"
+        , style "max-height" "24rem"
+        ]
         [ ViewCommon.viewMoviePoster movie.id movie.poster "100%" kodi.url
         , if movie.id == -1 then
             div [ class "card-body", style "padding" "0.7rem", style "display" "flex", style "align-items" "center" ]

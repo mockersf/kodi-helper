@@ -1,8 +1,14 @@
 module MainTheater exposing (update)
 
 import Browser exposing (UrlRequest(..))
+import InfiniteScroll
 import MainApi
 import Model exposing (CurrentView(..), HospitalMsgs(..), Model, Msg(..), SortBy(..), TheaterMsgs(..))
+
+
+nbDisplayedPerPage : Int
+nbDisplayedPerPage =
+    200
 
 
 update : TheaterMsgs -> Model -> ( Model, Cmd Msg )
@@ -16,6 +22,7 @@ update msg model =
                 updated_theater =
                     { old_theater
                         | sortBy = sortBy
+                        , nb_displayed = nbDisplayedPerPage
                     }
             in
             ( { model | theater = updated_theater }, Cmd.none )
@@ -34,6 +41,7 @@ update msg model =
                 updated_theater =
                     { old_theater
                         | filter = new_filter
+                        , nb_displayed = nbDisplayedPerPage
                     }
             in
             ( { model | theater = updated_theater }, Cmd.none )
@@ -56,6 +64,7 @@ update msg model =
                 updated_theater =
                     { old_theater
                         | filter = new_filter
+                        , nb_displayed = nbDisplayedPerPage
                     }
             in
             ( { model | theater = updated_theater }, Cmd.none )
@@ -74,6 +83,7 @@ update msg model =
                 updated_theater =
                     { old_theater
                         | filter = new_filter
+                        , nb_displayed = nbDisplayedPerPage
                     }
             in
             ( { model | theater = updated_theater }, Cmd.none )
@@ -92,6 +102,7 @@ update msg model =
                 updated_theater =
                     { old_theater
                         | filter = new_filter
+                        , nb_displayed = nbDisplayedPerPage
                     }
             in
             ( { model | theater = updated_theater }, Cmd.none )
@@ -114,6 +125,7 @@ update msg model =
                 updated_theater =
                     { old_theater
                         | filter = new_filter
+                        , nb_displayed = nbDisplayedPerPage
                     }
             in
             ( { model | theater = updated_theater }, Cmd.none )
@@ -132,6 +144,7 @@ update msg model =
                 updated_theater =
                     { old_theater
                         | filter = new_filter
+                        , nb_displayed = nbDisplayedPerPage
                     }
             in
             ( { model | theater = updated_theater }, Cmd.none )
@@ -154,6 +167,7 @@ update msg model =
                 updated_theater =
                     { old_theater
                         | filter = new_filter
+                        , nb_displayed = nbDisplayedPerPage
                     }
             in
             ( { model | theater = updated_theater }, Cmd.none )
@@ -219,3 +233,32 @@ update msg model =
               }
             , MainApi.setTags movie_id (Maybe.withDefault [] (Maybe.map .tags (List.head (List.filter (\movie -> movie.id == movie_id) updated_movie_list))))
             )
+
+        InfiniteScrollMsg direction ->
+            let
+                ( infiniteScroll, cmd ) =
+                    InfiniteScroll.update (\msg2 -> TheaterMsg (InfiniteScrollMsg msg2)) direction model.theater.infiniteScroll
+
+                old_theater =
+                    model.theater
+
+                updated_theater =
+                    { old_theater | infiniteScroll = infiniteScroll }
+            in
+            ( { model | theater = updated_theater }, cmd )
+
+        DisplayMore ->
+            let
+                old_theater =
+                    model.theater
+
+                infiniteScroll =
+                    InfiniteScroll.stopLoading old_theater.infiniteScroll
+
+                updated_theater =
+                    { old_theater
+                        | nb_displayed = old_theater.nb_displayed + nbDisplayedPerPage
+                        , infiniteScroll = infiniteScroll
+                    }
+            in
+            ( { model | theater = updated_theater }, Cmd.none )

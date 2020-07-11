@@ -19,17 +19,21 @@ module Model exposing
     , configDecoder
     , defaultKodi
     , handleJsonResponse
+    , hospitalInit
     , movieListDecoder
     , pathListDecoder
     , placeholderMovie
     , setMovieCard
+    , theaterInit
     )
 
 import Browser exposing (UrlRequest(..))
 import Browser.Navigation as Nav
 import Http
+import InfiniteScroll
 import Json.Decode as Decode exposing (float, int, string)
 import Json.Decode.Pipeline exposing (hardcoded, required)
+import Task
 import Time
 import Url
 
@@ -52,7 +56,28 @@ type alias Theater =
     , displayTagForMovie : Maybe Int
     , tags : List String
     , genres : List String
+    , infiniteScroll : InfiniteScroll.Model Msg
+    , nb_displayed : Int
     }
+
+
+theaterInit : Theater
+theaterInit =
+    Theater
+        (Filter ""
+            [ Nothing, Just SD, Just HD_720p, Just HD_1080p, Just UHD_4k, Just UHD_8k ]
+            []
+            []
+            SeenFilterAll
+        )
+        SortByTitle
+        Nothing
+        []
+        []
+        (InfiniteScroll.init
+            (\_ -> Task.succeed (TheaterMsg DisplayMore) |> Task.perform identity)
+        )
+        200
 
 
 type alias Hospital =
@@ -69,6 +94,11 @@ type alias Hospital =
     , loadingStart : Maybe Time.Posix
     , refreshingStart : Maybe Time.Posix
     }
+
+
+hospitalInit : Hospital
+hospitalInit =
+    Hospital False [] True [] True [] True [] True True Nothing Nothing
 
 
 type SickType
@@ -136,6 +166,8 @@ type TheaterMsgs
     | StopDisplayTags
     | RemoveTag Int String
     | AddTag Int String
+    | InfiniteScrollMsg InfiniteScroll.Msg
+    | DisplayMore
 
 
 type HospitalMsgs
