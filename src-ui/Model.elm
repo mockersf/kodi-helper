@@ -112,7 +112,8 @@ type Msg
 
 
 type ApiMsgs
-    = DataStringReceived (Result Http.Error String)
+    = GetMovies
+    | DataStringReceived (Result Http.Error String)
     | DataMovieListReceived (Result Http.Error (List Movie))
     | DataConfigReceived (Result Http.Error Config)
     | DataDuplicatesReceived (Result Http.Error (List Movie))

@@ -137,6 +137,9 @@ getAllErrors =
 update : ApiMsgs -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        GetMovies ->
+            ( model, getMovies )
+
         UpdateTags movie_list ->
             let
                 old_theater =

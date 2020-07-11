@@ -1,5 +1,6 @@
 use actix_files::Files;
 use actix_web::{middleware, web, App, HttpServer};
+use tracing::instrument;
 use tracing::{event, Level};
 use tracing_subscriber;
 
@@ -14,9 +15,37 @@ async fn main() -> std::io::Result<()> {
     let movie_list: web::Data<std::sync::RwLock<Vec<kodi_helper::Movie>>> =
         web::Data::new(std::sync::RwLock::new(vec![]));
 
-    let init = kodi_helper::api::movies::update_movie_list(movie_list.clone());
+    let mut refresh_interval = actix_rt::time::interval(std::time::Duration::from_secs(600));
 
-    let server = HttpServer::new(move || {
+    let server = setup_server(movie_list.clone())?;
+    futures::pin_mut!(server);
+
+    loop {
+        let next_tick = futures::future::join(
+            refresh_movie_list(movie_list.clone()),
+            refresh_interval.tick(),
+        );
+        futures::pin_mut!(next_tick);
+        let running = futures::future::select(server, next_tick);
+        match running.await {
+            futures::future::Either::Left(_) => break,
+            futures::future::Either::Right((_, server_fut)) => {
+                server = server_fut;
+            }
+        }
+    }
+    Ok(())
+}
+
+#[instrument(skip(movie_list), slevel = "info")]
+async fn refresh_movie_list(movie_list: web::Data<std::sync::RwLock<Vec<kodi_helper::Movie>>>) {
+    kodi_helper::update_movie_list(movie_list.clone()).await;
+}
+
+fn setup_server(
+    movie_list: web::Data<std::sync::RwLock<Vec<kodi_helper::Movie>>>,
+) -> std::io::Result<actix_web::dev::Server> {
+    Ok(HttpServer::new(move || {
         App::new()
             .app_data(movie_list.clone())
             .wrap(middleware::Logger::default())
@@ -50,6 +79,5 @@ async fn main() -> std::io::Result<()> {
             .service(Files::new("/static", "./static/").index_file("index.html"))
     })
     .bind("0.0.0.0:8080")?
-    .run();
-    futures::future::join(server, init).await.0
+    .run())
 }

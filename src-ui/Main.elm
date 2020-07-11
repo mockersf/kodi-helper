@@ -112,4 +112,4 @@ subscriptions model =
             Time.every 1000 Tick
 
         ( Nothing, Nothing ) ->
-            Time.every (10 * 60 * 1000) (\_ -> HospitalMsg (RefreshMovies []))
+            Time.every (10 * 60 * 1000) (\_ -> ApiMsg GetMovies)
