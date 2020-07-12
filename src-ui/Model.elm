@@ -214,6 +214,12 @@ type alias Movie =
     , set : Maybe String
     , tags : List String
     , genres : List String
+    , cast : List Cast
+    }
+
+
+type alias Cast =
+    { name : String
     }
 
 
@@ -233,6 +239,7 @@ placeholderMovie path =
         Nothing
         []
         []
+        []
 
 
 setMovieCard : Maybe String -> Movie
@@ -249,6 +256,7 @@ setMovieCard set_name =
         0
         0
         set_name
+        []
         []
         []
 
@@ -319,6 +327,13 @@ movieDecoder =
         |> required "set" (Decode.nullable Decode.string)
         |> required "tags" (Decode.list Decode.string)
         |> required "genres" (Decode.list Decode.string)
+        |> required "cast" (Decode.list castDecoder)
+
+
+castDecoder : Decode.Decoder Cast
+castDecoder =
+    Decode.succeed Cast
+        |> required "name" Decode.string
 
 
 resolutionDecoder : Decode.Decoder Resolution

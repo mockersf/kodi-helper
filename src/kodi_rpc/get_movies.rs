@@ -77,6 +77,16 @@ struct MovieDetailsResponse {
     tag: Vec<String>,
     genre: Vec<String>,
     streamdetails: MoviesStreamDetailsResponse,
+    cast: Vec<CastMemberResponse>,
+}
+
+#[derive(Deserialize, Clone, Debug)]
+#[serde(deny_unknown_fields)]
+struct CastMemberResponse {
+    name: String,
+    order: u16,
+    role: String,
+    thumbnail: Option<String>,
 }
 
 #[derive(Deserialize, Clone, Debug)]
@@ -107,6 +117,7 @@ impl KodiRPC {
                         "dateadded".to_string(),
                         "tag".to_string(),
                         "genre".to_string(),
+                        "cast".to_string(),
                     ],
                     limits: Some(JsonRPCRequestLimits { end: 10000 }),
                 }),
@@ -155,6 +166,15 @@ impl KodiRPC {
                     },
                     tags: movie.tag,
                     genres: movie.genre,
+                    cast: movie
+                        .cast
+                        .into_iter()
+                        .map(|cast| crate::Cast {
+                            name: cast.name,
+                            role: cast.role,
+                            thumbnail: cast.thumbnail,
+                        })
+                        .collect(),
                 }
             })
             .collect();

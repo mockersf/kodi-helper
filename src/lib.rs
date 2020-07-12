@@ -65,6 +65,14 @@ pub struct Movie {
     pub dateadded: String,
     pub tags: Vec<String>,
     pub genres: Vec<String>,
+    pub cast: Vec<Cast>,
+}
+
+#[derive(Serialize, Clone, Debug)]
+pub struct Cast {
+    name: String,
+    role: String,
+    thumbnail: Option<String>,
 }
 
 #[derive(Serialize, Clone, Debug)]

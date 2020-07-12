@@ -2,7 +2,7 @@ module ViewTheater exposing (viewMovies)
 
 import Browser exposing (UrlRequest(..))
 import Html exposing (Html, a, button, div, em, h4, h5, h6, input, span, table, tbody, td, text, tr)
-import Html.Attributes exposing (attribute, class, colspan, href, id, style, target, type_, value)
+import Html.Attributes exposing (attribute, class, colspan, href, id, spellcheck, style, target, type_, value)
 import Html.Events exposing (custom, keyCode, on, onClick, onInput, targetValue)
 import InfiniteScroll
 import Json.Decode as JD
@@ -66,6 +66,7 @@ viewMovies theater movie_list kodi =
                     (String.contains theater.filter.title (String.toLower movie.title)
                         || String.contains theater.filter.title (String.toLower (Maybe.withDefault "" movie.set))
                         || not (List.isEmpty (List.filter (\tag -> String.contains theater.filter.title (String.toLower tag)) movie.tags))
+                        || not (List.isEmpty (List.filter (\actor -> String.contains theater.filter.title (String.toLower actor.name)) movie.cast))
                     )
                         && List.member movie.resolution theater.filter.resolution
                         && (List.isEmpty theater.filter.tags || (not (List.isEmpty movie.tags) && List.all (\tag -> List.member tag movie.tags) theater.filter.tags))
@@ -220,7 +221,7 @@ viewMovieList theater movie_list kodi =
                         ]
                         [ text "Filters" ]
                     ]
-                , input [ type_ "text", class "form-control", onInput (\i -> TheaterMsg (TitleFilter i)), value theater.filter.title ] []
+                , input [ type_ "text", class "form-control", onInput (\i -> TheaterMsg (TitleFilter i)), value theater.filter.title, spellcheck False ] []
                 , div [ class "input-group-append" ]
                     [ button
                         [ class "btn btn-outline-secondary text-light"
