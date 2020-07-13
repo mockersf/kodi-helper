@@ -5,7 +5,9 @@ use crate::{kodi_rpc, Movie, CONFIG};
 
 #[instrument(level = "info")]
 pub async fn refresh_movie(movie_id: web::Path<u16>) -> HttpResponse {
-    let kodi_rpc = kodi_rpc::KodiRPC::new(&CONFIG.kodis[0].url);
+    let config = CONFIG.read().unwrap();
+
+    let kodi_rpc = kodi_rpc::KodiRPC::new(&config.kodis[0].url);
     if let Err(err) = kodi_rpc.refresh_movie(*movie_id).await {
         HttpResponse::InternalServerError().json(format!("error: {}", err))
     } else {
@@ -34,7 +36,8 @@ pub async fn set_movie_tags(
         })
         .collect();
 
-    let kodi_rpc = kodi_rpc::KodiRPC::new(&CONFIG.kodis[0].url);
+    let config = CONFIG.read().unwrap();
+    let kodi_rpc = kodi_rpc::KodiRPC::new(&config.kodis[0].url);
     if let Err(err) = kodi_rpc.set_movie_details(*movie_id, (*tags).clone()).await {
         HttpResponse::InternalServerError().json(format!("error: {}", err))
     } else {

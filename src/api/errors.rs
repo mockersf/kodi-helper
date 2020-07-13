@@ -1,19 +1,20 @@
 use actix_web::{web, HttpResponse};
 use tracing::{event, instrument, Level};
 
-use crate::{kodi_rpc, Movie, CONFIG, MOVIE_FILE};
+use crate::{kodi_rpc, Movie, CONFIG};
 
 #[instrument(skip(movie_list), level = "info")]
 pub async fn get_unrecognized_movies(
     movie_list: web::Data<std::sync::RwLock<Vec<Movie>>>,
 ) -> HttpResponse {
-    let ignored_patterns = CONFIG
+    let config = CONFIG.read().unwrap();
+    let ignored_patterns = config
         .filepatterns_to_ignore
         .iter()
         .map(|pattern| regex::Regex::new(pattern).unwrap())
         .collect::<Vec<_>>();
-    if let Ok(files) = kodi_rpc::KodiRPC::new(&CONFIG.kodis[0].url)
-        .get_directory(&CONFIG.movies_directory)
+    if let Ok(files) = kodi_rpc::KodiRPC::new(&config.kodis[0].url)
+        .get_directory(&config.movies_directory)
         .await
     {
         let known_files: Vec<_> = movie_list
@@ -49,13 +50,19 @@ pub fn get_duplicate_movies_list(
     movie_list: web::Data<std::sync::RwLock<Vec<Movie>>>,
 ) -> HttpResponse {
     let readable_movie_list = movie_list.read().unwrap().clone();
+    let config = CONFIG.read().unwrap();
+    let movie_pattern = regex::Regex::new(&format!(
+        "^{}{}",
+        config.movies_directory, config.movie_pattern
+    ))
+    .unwrap();
 
     let dups: Vec<Movie> = readable_movie_list
         .into_iter()
         .map(|movie| {
             (
                 movie.clone(),
-                MOVIE_FILE
+                movie_pattern
                     .captures(&movie.path)
                     .and_then(|c| c.name("year"))
                     .map(|m| m.as_str().to_string()),
@@ -97,13 +104,19 @@ pub fn get_recognition_errors_list(
     movie_list: web::Data<std::sync::RwLock<Vec<Movie>>>,
 ) -> HttpResponse {
     let readable_movie_list = movie_list.read().unwrap().clone();
+    let config = CONFIG.read().unwrap();
+    let movie_pattern = regex::Regex::new(&format!(
+        "^{}{}",
+        config.movies_directory, config.movie_pattern
+    ))
+    .unwrap();
 
     let diffs: Vec<Movie> = readable_movie_list
         .into_iter()
         .map(|movie| {
             (
                 movie.clone(),
-                MOVIE_FILE
+                movie_pattern
                     .captures(&movie.path)
                     .map(|c| {
                         (
@@ -120,7 +133,7 @@ pub fn get_recognition_errors_list(
         })
         .filter(|(movie, (title, year))| {
             strsim::levenshtein(&movie.title, title)
-                > CONFIG.name_differences_threshold.unwrap_or(3)
+                > config.name_differences_threshold.unwrap_or(3)
                 || !movie.premiered.starts_with(year)
         })
         .map(|(movie, _)| movie)

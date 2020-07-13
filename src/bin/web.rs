@@ -1,8 +1,17 @@
 use actix_files::Files;
 use actix_web::{middleware, web, App, HttpServer};
+use clap::Clap;
 use tracing::instrument;
 use tracing::{event, Level};
 use tracing_subscriber;
+
+#[derive(Clap)]
+#[clap(version = "1.0", author = "François")]
+struct CliOpts {
+    /// conf path
+    #[clap(short = "c", long = "config", default_value = "config.conf")]
+    config: String,
+}
 
 #[actix_rt::main]
 async fn main() -> std::io::Result<()> {
@@ -10,6 +19,7 @@ async fn main() -> std::io::Result<()> {
         .with_max_level(tracing::Level::INFO)
         .init();
 
+    load_config();
     event!(Level::INFO, "Starting");
 
     let movie_list: web::Data<std::sync::RwLock<Vec<kodi_helper::Movie>>> =
@@ -35,6 +45,16 @@ async fn main() -> std::io::Result<()> {
         }
     }
     Ok(())
+}
+
+fn load_config() {
+    let cli_opts: CliOpts = CliOpts::parse();
+    let loaded_config: kodi_helper::Config = hocon::HoconLoader::new()
+        .load_file(&cli_opts.config)
+        .and_then(|hc| hc.resolve())
+        .unwrap();
+    let mut config = kodi_helper::CONFIG.write().unwrap();
+    *config = loaded_config;
 }
 
 #[instrument(skip(movie_list), slevel = "info")]
