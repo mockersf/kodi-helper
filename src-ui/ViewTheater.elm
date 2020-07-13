@@ -389,7 +389,7 @@ viewResolutionFilter theater resolution =
                     ]
 
              else
-                "badge badge-light"
+                "badge badge-dark"
             )
         , onClick (TheaterMsg (ToggleResolutionFilter resolution))
         , style "margin" "0.25rem"
