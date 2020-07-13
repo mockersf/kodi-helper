@@ -278,7 +278,7 @@ viewMovieList theater movie_list kodi =
                                     ++ [ span
                                             [ class
                                                 (if List.isEmpty theater.filter.tags then
-                                                    "badge badge-light"
+                                                    "badge badge-dark"
 
                                                  else
                                                     "badge badge-warning"
@@ -301,7 +301,7 @@ viewMovieList theater movie_list kodi =
                                     ++ [ span
                                             [ class
                                                 (if List.isEmpty theater.filter.genres then
-                                                    "badge badge-light"
+                                                    "badge badge-dark"
 
                                                  else
                                                     "badge badge-warning"
@@ -322,10 +322,10 @@ viewMovieList theater movie_list kodi =
                                         , class
                                             ("btn btn-sm btn-"
                                                 ++ (if theater.filter.seen == Model.SeenFilterAll then
-                                                        "primary"
+                                                        "light"
 
                                                     else
-                                                        "light"
+                                                        "dark"
                                                    )
                                             )
                                         , onClick (TheaterMsg (ChangeSeenFilter Model.SeenFilterAll))
@@ -336,10 +336,10 @@ viewMovieList theater movie_list kodi =
                                         , class
                                             ("btn btn-sm btn-"
                                                 ++ (if theater.filter.seen == Model.SeenFilterSeen then
-                                                        "primary"
+                                                        "light"
 
                                                     else
-                                                        "light"
+                                                        "dark"
                                                    )
                                             )
                                         , onClick (TheaterMsg (ChangeSeenFilter Model.SeenFilterSeen))
@@ -350,10 +350,10 @@ viewMovieList theater movie_list kodi =
                                         , class
                                             ("btn btn-sm btn-"
                                                 ++ (if theater.filter.seen == Model.SeenFilterNotSeen then
-                                                        "primary"
+                                                        "light"
 
                                                     else
-                                                        "light"
+                                                        "dark"
                                                    )
                                             )
                                         , onClick (TheaterMsg (ChangeSeenFilter Model.SeenFilterNotSeen))
@@ -403,10 +403,10 @@ viewTagFilter theater tag =
     span
         [ class
             (if List.member tag theater.filter.tags then
-                "badge badge-dark"
+                "badge badge-light"
 
              else
-                "badge badge-light"
+                "badge badge-dark"
             )
         , onClick (TheaterMsg (ToggleTagFilter tag))
         , style "margin" "0.25rem"
@@ -419,10 +419,10 @@ viewGenreFilter theater genre =
     span
         [ class
             (if List.member genre theater.filter.genres then
-                "badge badge-dark"
+                "badge badge-light"
 
              else
-                "badge badge-light"
+                "badge badge-dark"
             )
         , onClick (TheaterMsg (ToggleGenreFilter genre))
         , style "margin" "0.25rem"
