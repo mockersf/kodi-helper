@@ -69,6 +69,7 @@ theaterInit =
             []
             []
             SeenFilterAll
+            0
         )
         SortByTitle
         Nothing
@@ -116,6 +117,7 @@ type alias Filter =
     , tags : List String
     , genres : List String
     , seen : SeenFilter
+    , rating : Float
     }
 
 
@@ -164,6 +166,7 @@ type TheaterMsgs
     | ChangeSeenFilter SeenFilter
     | DisplayTagsFor Int
     | StopDisplayTags
+    | RatingFilter Float
     | RemoveTag Int String
     | AddTag Int String
     | InfiniteScrollMsg InfiniteScroll.Msg

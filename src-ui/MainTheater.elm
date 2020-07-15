@@ -196,6 +196,22 @@ update msg model =
             in
             ( { model | theater = updated_theater }, Cmd.none )
 
+        RatingFilter new_rating ->
+            let
+                old_theater =
+                    model.theater
+
+                old_filter =
+                    old_theater.filter
+
+                updated_filter =
+                    { old_filter | rating = new_rating }
+
+                updated_theater =
+                    { old_theater | filter = updated_filter }
+            in
+            ( { model | theater = updated_theater }, Cmd.none )
+
         AddTag movie_id new_tag ->
             let
                 updated_movie_list =

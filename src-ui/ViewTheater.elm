@@ -75,6 +75,7 @@ viewMovies theater movie_list kodi =
                                 || ((theater.filter.seen == Model.SeenFilterSeen) && (movie.playcount > 0))
                                 || ((theater.filter.seen == Model.SeenFilterNotSeen) && (movie.playcount == 0))
                            )
+                        && (movie.rating >= theater.filter.rating)
                 )
                 movie_list
 
@@ -362,7 +363,34 @@ viewMovieList theater movie_list kodi =
                                     ]
                                 ]
                             ]
-                        , tr [] [ td [ colspan 2 ] [ em [ class "text-muted" ] [ text (String.fromInt (List.length movie_list) ++ " movies matching") ] ] ]
+                        , tr []
+                            [ td [] [ text "Rating" ]
+                            , td []
+                                [ div [ class "dropdown" ]
+                                    [ button
+                                        [ class "btn btn-sm btn-secondary dropdown-toggle"
+                                        , type_ "button"
+                                        , id "dropdownRatingButton"
+                                        , attribute "data-toggle" "dropdown"
+                                        ]
+                                        [ text (String.fromFloat theater.filter.rating) ]
+                                    , div [ class "dropdown-menu", attribute "aria-labelledby" "dropdownRatingButton" ]
+                                        (List.map
+                                            (\rating ->
+                                                a
+                                                    [ class "dropdown-item"
+                                                    , href "#"
+                                                    , onClick (TheaterMsg (RatingFilter rating))
+                                                    ]
+                                                    [ text (String.fromFloat rating) ]
+                                            )
+                                            [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
+                                        )
+                                    ]
+                                ]
+                            , td [] []
+                            ]
+                        , tr [] [ td [ colspan 4 ] [ em [ class "text-muted" ] [ text (String.fromInt (List.length movie_list) ++ " movies matching") ] ] ]
                         ]
                     ]
                 ]
