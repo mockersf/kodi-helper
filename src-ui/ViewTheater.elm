@@ -249,160 +249,164 @@ viewMovieList theater movie_list kodi =
                         )
                     ]
                 ]
-            , div [ class "collapse", id "collapsableExtraFilters" ]
-                [ div [ class "card card-body" ]
-                    [ table [ class "table table-sm table-borderless" ]
-                        [ tr []
-                            [ td []
-                                [ text "Resolution" ]
-                            , td
-                                []
-                                (List.map
-                                    (\resolution -> viewResolutionFilter theater resolution)
-                                    [ Just Model.UHD_8k
-                                    , Just Model.UHD_4k
-                                    , Just Model.HD_1080p
-                                    , Just Model.HD_720p
-                                    , Just Model.SD
-                                    , Nothing
-                                    ]
-                                )
-                            ]
-                        , tr []
-                            [ td []
-                                [ text "Tags" ]
-                            , td
-                                []
-                                (List.map
-                                    (\tag -> viewTagFilter theater tag)
-                                    theater.tags
-                                    ++ [ span
-                                            [ class
-                                                (if List.isEmpty theater.filter.tags then
-                                                    "badge badge-dark"
+            ]
+        , div []
+            [ div [ class "row" ]
+                [ div [ class "collapse col-3", id "collapsableExtraFilters" ]
+                    [ div [ class "card card-body" ]
+                        [ table [ class "table table-sm table-borderless" ]
+                            [ tr []
+                                [ td []
+                                    [ text "Resolution" ]
+                                , td
+                                    []
+                                    (List.map
+                                        (\resolution -> viewResolutionFilter theater resolution)
+                                        [ Just Model.UHD_8k
+                                        , Just Model.UHD_4k
+                                        , Just Model.HD_1080p
+                                        , Just Model.HD_720p
+                                        , Just Model.SD
+                                        , Nothing
+                                        ]
+                                    )
+                                ]
+                            , tr []
+                                [ td []
+                                    [ text "Tags" ]
+                                , td
+                                    []
+                                    (List.map
+                                        (\tag -> viewTagFilter theater tag)
+                                        theater.tags
+                                        ++ [ span
+                                                [ class
+                                                    (if List.isEmpty theater.filter.tags then
+                                                        "badge badge-dark"
 
-                                                 else
-                                                    "badge badge-warning"
+                                                     else
+                                                        "badge badge-warning"
+                                                    )
+                                                , onClick (TheaterMsg ClearTagFilter)
+                                                , style "margin" "0.25rem"
+                                                ]
+                                                [ text "clear" ]
+                                           ]
+                                    )
+                                ]
+                            , tr []
+                                [ td []
+                                    [ text "Genres" ]
+                                , td
+                                    []
+                                    (List.map
+                                        (\genre -> viewGenreFilter theater genre)
+                                        theater.genres
+                                        ++ [ span
+                                                [ class
+                                                    (if List.isEmpty theater.filter.genres then
+                                                        "badge badge-dark"
+
+                                                     else
+                                                        "badge badge-warning"
+                                                    )
+                                                , onClick (TheaterMsg ClearGenreFilter)
+                                                , style "margin" "0.25rem"
+                                                ]
+                                                [ text "clear" ]
+                                           ]
+                                    )
+                                ]
+                            , tr []
+                                [ td [] [ text "Seen" ]
+                                , td []
+                                    [ div [ class "btn-group" ]
+                                        [ button
+                                            [ type_ "button"
+                                            , class
+                                                ("btn btn-sm btn-"
+                                                    ++ (if theater.filter.seen == Model.SeenFilterAll then
+                                                            "light"
+
+                                                        else
+                                                            "dark"
+                                                       )
                                                 )
-                                            , onClick (TheaterMsg ClearTagFilter)
-                                            , style "margin" "0.25rem"
+                                            , onClick (TheaterMsg (ChangeSeenFilter Model.SeenFilterAll))
                                             ]
-                                            [ text "clear" ]
-                                       ]
-                                )
-                            ]
-                        , tr []
-                            [ td []
-                                [ text "Genres" ]
-                            , td
-                                []
-                                (List.map
-                                    (\genre -> viewGenreFilter theater genre)
-                                    theater.genres
-                                    ++ [ span
-                                            [ class
-                                                (if List.isEmpty theater.filter.genres then
-                                                    "badge badge-dark"
+                                            [ text "All" ]
+                                        , button
+                                            [ type_ "button"
+                                            , class
+                                                ("btn btn-sm btn-"
+                                                    ++ (if theater.filter.seen == Model.SeenFilterSeen then
+                                                            "light"
 
-                                                 else
-                                                    "badge badge-warning"
+                                                        else
+                                                            "dark"
+                                                       )
                                                 )
-                                            , onClick (TheaterMsg ClearGenreFilter)
-                                            , style "margin" "0.25rem"
+                                            , onClick (TheaterMsg (ChangeSeenFilter Model.SeenFilterSeen))
                                             ]
-                                            [ text "clear" ]
-                                       ]
-                                )
-                            ]
-                        , tr []
-                            [ td [] [ text "Seen" ]
-                            , td []
-                                [ div [ class "btn-group" ]
-                                    [ button
-                                        [ type_ "button"
-                                        , class
-                                            ("btn btn-sm btn-"
-                                                ++ (if theater.filter.seen == Model.SeenFilterAll then
-                                                        "light"
+                                            [ text "Seen" ]
+                                        , button
+                                            [ type_ "button"
+                                            , class
+                                                ("btn btn-sm btn-"
+                                                    ++ (if theater.filter.seen == Model.SeenFilterNotSeen then
+                                                            "light"
 
-                                                    else
-                                                        "dark"
-                                                   )
-                                            )
-                                        , onClick (TheaterMsg (ChangeSeenFilter Model.SeenFilterAll))
+                                                        else
+                                                            "dark"
+                                                       )
+                                                )
+                                            , onClick (TheaterMsg (ChangeSeenFilter Model.SeenFilterNotSeen))
+                                            ]
+                                            [ text "Not seen" ]
                                         ]
-                                        [ text "All" ]
-                                    , button
-                                        [ type_ "button"
-                                        , class
-                                            ("btn btn-sm btn-"
-                                                ++ (if theater.filter.seen == Model.SeenFilterSeen then
-                                                        "light"
-
-                                                    else
-                                                        "dark"
-                                                   )
-                                            )
-                                        , onClick (TheaterMsg (ChangeSeenFilter Model.SeenFilterSeen))
-                                        ]
-                                        [ text "Seen" ]
-                                    , button
-                                        [ type_ "button"
-                                        , class
-                                            ("btn btn-sm btn-"
-                                                ++ (if theater.filter.seen == Model.SeenFilterNotSeen then
-                                                        "light"
-
-                                                    else
-                                                        "dark"
-                                                   )
-                                            )
-                                        , onClick (TheaterMsg (ChangeSeenFilter Model.SeenFilterNotSeen))
-                                        ]
-                                        [ text "Not seen" ]
                                     ]
                                 ]
-                            ]
-                        , tr []
-                            [ td [] [ text "Rating" ]
-                            , td []
-                                [ div [ class "dropdown" ]
-                                    [ button
-                                        [ class "btn btn-sm btn-secondary dropdown-toggle"
-                                        , type_ "button"
-                                        , id "dropdownRatingButton"
-                                        , attribute "data-toggle" "dropdown"
-                                        ]
-                                        [ text (String.fromFloat theater.filter.rating) ]
-                                    , div [ class "dropdown-menu", attribute "aria-labelledby" "dropdownRatingButton" ]
-                                        (List.map
-                                            (\rating ->
-                                                a
-                                                    [ class "dropdown-item"
-                                                    , href "#"
-                                                    , onClick (TheaterMsg (RatingFilter rating))
-                                                    ]
-                                                    [ text (String.fromFloat rating) ]
+                            , tr []
+                                [ td [] [ text "Rating" ]
+                                , td []
+                                    [ div [ class "dropdown" ]
+                                        [ button
+                                            [ class "btn btn-sm btn-secondary dropdown-toggle"
+                                            , type_ "button"
+                                            , id "dropdownRatingButton"
+                                            , attribute "data-toggle" "dropdown"
+                                            ]
+                                            [ text (String.fromFloat theater.filter.rating) ]
+                                        , div [ class "dropdown-menu", attribute "aria-labelledby" "dropdownRatingButton" ]
+                                            (List.map
+                                                (\rating ->
+                                                    a
+                                                        [ class "dropdown-item"
+                                                        , href "#"
+                                                        , onClick (TheaterMsg (RatingFilter rating))
+                                                        ]
+                                                        [ text (String.fromFloat rating) ]
+                                                )
+                                                [ 9, 8, 7, 6, 5, 4, 3, 2, 1, 0 ]
                                             )
-                                            [ 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 ]
-                                        )
+                                        ]
                                     ]
+                                , td [] []
                                 ]
-                            , td [] []
+                            , tr [] [ td [ colspan 4 ] [ em [ class "text-muted" ] [ text (String.fromInt (List.length movie_list) ++ " movies matching") ] ] ]
                             ]
-                        , tr [] [ td [ colspan 4 ] [ em [ class "text-muted" ] [ text (String.fromInt (List.length movie_list) ++ " movies matching") ] ] ]
                         ]
                     ]
+                , div
+                    [ class "card-deck col"
+                    , style "height" "87vh"
+                    , style "overflow" "scroll"
+                    , style "align-content" "flex-start"
+                    , InfiniteScroll.infiniteScroll (\msg -> TheaterMsg (InfiniteScrollMsg msg))
+                    ]
+                    (List.map (\movie -> viewMovie movie kodi) (List.take theater.nb_displayed movie_list))
                 ]
             ]
-        , div
-            [ class "card-deck"
-            , style "height" "87vh"
-            , style "overflow" "scroll"
-            , style "align-content" "flex-start"
-            , InfiniteScroll.infiniteScroll (\msg -> TheaterMsg (InfiniteScrollMsg msg))
-            ]
-            (List.map (\movie -> viewMovie movie kodi) (List.take theater.nb_displayed movie_list))
         ]
 
 
