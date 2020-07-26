@@ -29,22 +29,59 @@ viewDuration : Int -> Html Msg
 viewDuration duration =
     div [ class "text-muted small" ]
         [ text
-            (String.concat
-                ((if duration > 3600 then
-                    [ String.fromInt (duration // 3600)
-                    , ":"
-                    , String.padLeft 2 '0' (String.fromInt (modBy 60 (duration // 60)))
-                    ]
-
-                  else
-                    [ String.fromInt (duration // 60) ]
-                 )
-                    ++ [ ":"
-                       , String.padLeft 2 '0' (String.fromInt (modBy 60 duration))
-                       ]
-                )
-            )
+            (String.concat (viewDurationDays duration False))
         ]
+
+
+viewDurationDays : Int -> Bool -> List String
+viewDurationDays duration has_more =
+    (if has_more then
+        [ ":", String.padLeft 2 '0' (String.fromInt (duration // 86400)) ]
+
+     else if duration > 86400 then
+        [ String.fromInt (duration // 86400) ]
+
+     else
+        []
+    )
+        ++ viewDurationHours (modBy 86400 duration) (duration > 86400)
+
+
+viewDurationHours : Int -> Bool -> List String
+viewDurationHours duration has_more =
+    (if has_more then
+        [ ":", String.padLeft 2 '0' (String.fromInt (duration // 3600)) ]
+
+     else if duration > 3600 then
+        [ String.fromInt (duration // 3600) ]
+
+     else
+        []
+    )
+        ++ viewDurationMinutes (modBy 3600 duration) (duration > 3600)
+
+
+viewDurationMinutes : Int -> Bool -> List String
+viewDurationMinutes duration has_more =
+    (if has_more then
+        [ ":", String.padLeft 2 '0' (String.fromInt (duration // 60)) ]
+
+     else if duration > 60 then
+        [ String.fromInt (duration // 60) ]
+
+     else
+        []
+    )
+        ++ viewDurationSeconds (modBy 60 duration) (duration > 60)
+
+
+viewDurationSeconds : Int -> Bool -> List String
+viewDurationSeconds duration has_more =
+    if has_more then
+        [ ":", String.padLeft 2 '0' (String.fromInt duration) ]
+
+    else
+        [ String.fromInt duration ]
 
 
 resolutionToQuality : Maybe Model.Resolution -> String

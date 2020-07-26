@@ -393,7 +393,14 @@ viewMovieList theater movie_list kodi =
                                     ]
                                 , td [] []
                                 ]
-                            , tr [] [ td [ colspan 4 ] [ em [ class "text-muted" ] [ text (String.fromInt (List.length movie_list) ++ " movies matching") ] ] ]
+                            , tr []
+                                [ td [ colspan 4 ]
+                                    [ em [ class "text-muted" ]
+                                        [ text (String.fromInt (List.length movie_list) ++ " movies matching")
+                                        , ViewCommon.viewDuration (List.sum (List.map (\movie -> movie.runtime) movie_list))
+                                        ]
+                                    ]
+                                ]
                             ]
                         ]
                     ]
