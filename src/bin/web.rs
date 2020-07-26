@@ -95,8 +95,8 @@ fn setup_server(
                     .to(kodi_helper::api::errors::get_unrecognized_movies),
             )
             // UI
-            .service(Files::new("/ui/{tail:.*}", "./static/").index_file("index.html"))
             .service(Files::new("/static", "./static/").index_file("index.html"))
+            .service(Files::new("/{tail:.*}", "./static/").index_file("index.html"))
     })
     .bind("0.0.0.0:8080")?
     .run())
