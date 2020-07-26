@@ -63,10 +63,18 @@ viewMovies theater movie_list kodi =
         filtered_list =
             List.filter
                 (\movie ->
-                    (String.contains theater.filter.title (String.toLower movie.title)
-                        || String.contains theater.filter.title (String.toLower (Maybe.withDefault "" movie.set))
-                        || not (List.isEmpty (List.filter (\tag -> String.contains theater.filter.title (String.toLower tag)) movie.tags))
-                        || not (List.isEmpty (List.filter (\actor -> String.contains theater.filter.title (String.toLower actor.name)) movie.cast))
+                    ((List.member Model.SearchInTitle theater.filter.searchIn
+                        && String.contains theater.filter.title (String.toLower movie.title)
+                     )
+                        || (List.member Model.SearchInSet theater.filter.searchIn
+                                && String.contains theater.filter.title (String.toLower (Maybe.withDefault "" movie.set))
+                           )
+                        || (List.member Model.SearchInTag theater.filter.searchIn
+                                && not (List.isEmpty (List.filter (\tag -> String.contains theater.filter.title (String.toLower tag)) movie.tags))
+                           )
+                        || (List.member Model.SearchInActor theater.filter.searchIn
+                                && not (List.isEmpty (List.filter (\actor -> String.contains theater.filter.title (String.toLower actor.name)) movie.cast))
+                           )
                     )
                         && List.member movie.resolution theater.filter.resolution
                         && (List.isEmpty theater.filter.tags || (not (List.isEmpty movie.tags) && List.all (\tag -> List.member tag movie.tags) theater.filter.tags))
@@ -257,6 +265,20 @@ viewMovieList theater movie_list kodi =
                         [ table [ class "table table-sm table-borderless" ]
                             [ tr []
                                 [ td []
+                                    [ text "Search In" ]
+                                , td
+                                    []
+                                    (List.map
+                                        (\search_in -> viewSearchInFilter theater search_in)
+                                        [ Model.SearchInTitle
+                                        , Model.SearchInSet
+                                        , Model.SearchInTag
+                                        , Model.SearchInActor
+                                        ]
+                                    )
+                                ]
+                            , tr []
+                                [ td []
                                     [ text "Resolution" ]
                                 , td
                                     []
@@ -415,6 +437,38 @@ viewMovieList theater movie_list kodi =
                 ]
             ]
         ]
+
+
+viewSearchInFilter : Theater -> Model.FilterSearchIn -> Html Msg
+viewSearchInFilter theater search_in =
+    span
+        [ class
+            (if List.member search_in theater.filter.searchIn then
+                "badge badge-light"
+
+             else
+                "badge badge-dark"
+            )
+        , onClick (TheaterMsg (ToggleSearchInFilter search_in))
+        , style "margin" "0.25rem"
+        ]
+        [ text (searchInToString search_in) ]
+
+
+searchInToString : Model.FilterSearchIn -> String
+searchInToString search_in =
+    case search_in of
+        Model.SearchInTitle ->
+            "Title"
+
+        Model.SearchInSet ->
+            "Set"
+
+        Model.SearchInTag ->
+            "Tag"
+
+        Model.SearchInActor ->
+            "Actor"
 
 
 viewResolutionFilter : Theater -> Maybe Model.Resolution -> Html Msg

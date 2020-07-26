@@ -3,6 +3,7 @@ module Model exposing
     , Config
     , CurrentView(..)
     , Filter
+    , FilterSearchIn(..)
     , Hospital
     , HospitalMsgs(..)
     , Kodi
@@ -65,6 +66,7 @@ theaterInit : Theater
 theaterInit =
     Theater
         (Filter ""
+            [ SearchInTitle, SearchInSet, SearchInTag, SearchInActor ]
             [ Nothing, Just SD, Just HD_720p, Just HD_1080p, Just UHD_4k, Just UHD_8k ]
             []
             []
@@ -113,12 +115,20 @@ type SickType
 
 type alias Filter =
     { title : String
+    , searchIn : List FilterSearchIn
     , resolution : List (Maybe Resolution)
     , tags : List String
     , genres : List String
     , seen : SeenFilter
     , rating : Float
     }
+
+
+type FilterSearchIn
+    = SearchInTitle
+    | SearchInSet
+    | SearchInTag
+    | SearchInActor
 
 
 type SeenFilter
@@ -158,6 +168,7 @@ type ApiMsgs
 type TheaterMsgs
     = SortTable SortBy
     | TitleFilter String
+    | ToggleSearchInFilter FilterSearchIn
     | ToggleTagFilter String
     | ClearTagFilter
     | ToggleGenreFilter String

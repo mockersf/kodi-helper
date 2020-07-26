@@ -46,6 +46,29 @@ update msg model =
             in
             ( { model | theater = updated_theater }, Cmd.none )
 
+        ToggleSearchInFilter search_in ->
+            let
+                old_filter =
+                    model.theater.filter
+
+                new_filter =
+                    if List.member search_in old_filter.searchIn then
+                        { old_filter | searchIn = List.filter (\s -> s /= search_in) old_filter.searchIn }
+
+                    else
+                        { old_filter | searchIn = search_in :: old_filter.searchIn }
+
+                old_theater =
+                    model.theater
+
+                updated_theater =
+                    { old_theater
+                        | filter = new_filter
+                        , nb_displayed = nbDisplayedPerPage
+                    }
+            in
+            ( { model | theater = updated_theater }, Cmd.none )
+
         ToggleTagFilter tag ->
             let
                 old_filter =
