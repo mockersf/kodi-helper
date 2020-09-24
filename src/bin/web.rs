@@ -25,7 +25,7 @@ async fn main() -> std::io::Result<()> {
     let movie_list: web::Data<std::sync::RwLock<Vec<kodi_helper::Movie>>> =
         web::Data::new(std::sync::RwLock::new(vec![]));
 
-    let mut refresh_interval = actix_rt::time::interval(std::time::Duration::from_secs(600));
+    let mut refresh_interval = actix_rt::time::interval(std::time::Duration::from_secs(60 * 30));
 
     let server = setup_server(movie_list.clone())?;
     futures::pin_mut!(server);
