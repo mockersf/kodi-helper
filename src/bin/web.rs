@@ -1,3 +1,5 @@
+#![type_length_limit = "2275484"]
+
 use actix_files::Files;
 use actix_web::{middleware, web, App, HttpServer};
 use clap::Clap;
@@ -9,7 +11,7 @@ use tracing_subscriber;
 #[clap(version = "1.0", author = "François")]
 struct CliOpts {
     /// conf path
-    #[clap(short = "c", long = "config", default_value = "config.conf")]
+    #[clap(short = 'c', long = "config", default_value = "config.conf")]
     config: String,
 }
 
@@ -57,7 +59,7 @@ fn load_config() {
     *config = loaded_config;
 }
 
-#[instrument(skip(movie_list), slevel = "info")]
+#[instrument(skip(movie_list), level = "info")]
 async fn refresh_movie_list(movie_list: web::Data<std::sync::RwLock<Vec<kodi_helper::Movie>>>) {
     kodi_helper::update_movie_list(movie_list.clone()).await;
 }
