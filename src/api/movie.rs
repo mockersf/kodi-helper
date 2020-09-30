@@ -15,7 +15,7 @@ pub async fn refresh_movie(movie_id: web::Path<u16>) -> HttpResponse {
     }
 }
 
-#[instrument(skip(movie_list), slevel = "info")]
+#[instrument(skip(movie_list), level = "info")]
 pub async fn set_movie_tags(
     movie_list: web::Data<std::sync::RwLock<Vec<Movie>>>,
     movie_id: web::Path<u16>,
