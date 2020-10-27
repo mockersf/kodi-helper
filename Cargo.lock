@@ -959,9 +959,9 @@ dependencies = [
 
 [[package]]
 name = "hocon"
-version = "0.3.5"
+version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "39554b1a6dc84511d3f8c0287ad63a78de60444b4032aec529d9e303ceaf0641"
+checksum = "2e7c6cbed92d004d0b286dd7446292c4d6148d1d776f4028466c8f8289ba2417"
 dependencies = [
  "failure",
  "java-properties",
