@@ -17,6 +17,7 @@ struct JsonRPCGetMoviesRequestParams {
 #[derive(Deserialize, Clone, Debug)]
 #[serde(deny_unknown_fields)]
 struct MoviesArtResponse {
+    icon: Option<String>,
     thumb: Option<String>,
     fanart: Option<String>,
     poster: Option<String>,
